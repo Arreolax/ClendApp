@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Clend App</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="menu_profile">Perfil</string>
+    <string name="menu_logout">Cerrar Sesion</string>
+    <string name="menu_notes">Notas</string>
+    <string name="menu_calculator">Calculadora</string>
+    <string name="menu_unknown">\?\?\?</string>
+    <string name="menu_ranking">Ranking</string>
+    <string name="menu_premium">Premium</string>
+    <string name="menu_support">Atención al Cliente</string>
+
+    <string name="profile_name">Nombre Nombre2 Apellido1 Apellido2</string>
+    <string name="profile_rank">Rank</string>
+    <string name="profile_username">\@Username</string>
+
+</resources>

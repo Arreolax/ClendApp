@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Contenido principal -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F8F9FA">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:defaultNavHost="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:navGraph="@navigation/nav_graph" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:itemIconTint="#2A2A2A"
+            app:labelVisibilityMode="unlabeled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Menú lateral derecho personalizado -->
+    <LinearLayout
+        android:id="@+id/right_drawer"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:background="#FFFFFF"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
+
+        <include layout="@layout/nav_header_main" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="16dp">
+
+                <!-- Item Perfil -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_perfil"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_profile"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_profile"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Notas -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_notas"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_notes"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_notes"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Calculadora -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_calculadora"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_calculator"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_math"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item ??? -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_unknown"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_unknown"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_unknown"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Ranking -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_ranking"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_ranking"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_ranking"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Premium -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_premium"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_premium"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_premium"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Atención al Cliente -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_support"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/menu_support"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_support"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Ajustes -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_ajustes"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/menu_settings"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_settings"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#F2F2F2"
+                    app:cornerRadius="4dp" />
+
+                <!-- Item Cerrar Sesión -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_logout"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/menu_logout"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textAllCaps="false"
+                    android:gravity="center"
+                    app:icon="@drawable/ic_logout"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconTint="#000000"
+                    app:backgroundTint="#FFB3B3"
+                    app:cornerRadius="4dp" />
+
+            </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>
