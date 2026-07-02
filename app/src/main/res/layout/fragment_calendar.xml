@@ -162,11 +162,13 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                        <ImageButton
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_alignParentEnd="true"
-                            android:src="@drawable/ic_menu"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_more_vert"
+                            android:tag="task_options_button"
                             android:contentDescription="@string/app_name"
                             app:tint="#999999" />
                     </RelativeLayout>
@@ -223,11 +225,13 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                        <ImageButton
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_alignParentEnd="true"
-                            android:src="@drawable/ic_menu"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_more_vert"
+                            android:tag="task_options_button"
                             android:contentDescription="@string/app_name"
                             app:tint="#999999" />
                     </RelativeLayout>
@@ -284,11 +288,13 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                        <ImageButton
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_alignParentEnd="true"
-                            android:src="@drawable/ic_menu"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_more_vert"
+                            android:tag="task_options_button"
                             android:contentDescription="@string/app_name"
                             app:tint="#999999" />
                     </RelativeLayout>
