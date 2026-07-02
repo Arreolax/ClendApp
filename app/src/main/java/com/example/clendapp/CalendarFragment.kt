@@ -22,6 +22,7 @@ class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
 
+    private var displayedMonthDate: LocalDate = LocalDate.now()
     private var selectedDate: LocalDate = LocalDate.now()
 
     override fun onCreateView(
@@ -39,19 +40,24 @@ class CalendarFragment : Fragment() {
         setMonthView()
 
         binding.btnPrevMonth.setOnClickListener {
-            selectedDate = selectedDate.minusMonths(1)
+            displayedMonthDate = displayedMonthDate.minusMonths(1)
             setMonthView()
         }
 
         binding.btnNextMonth.setOnClickListener {
-            selectedDate = selectedDate.plusMonths(1)
+            displayedMonthDate = displayedMonthDate.plusMonths(1)
             setMonthView()
+        }
+
+        binding.fabAddTask.setOnClickListener {
+            val addTaskSheet = AddTaskSheetFragment()
+            addTaskSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
         }
     }
 
     private fun setMonthView() {
-        binding.tvMonth.text = selectedDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        binding.tvYear.text = selectedDate.year.toString()
+        binding.tvMonth.text = displayedMonthDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        binding.tvYear.text = displayedMonthDate.year.toString()
 
         // Limpiar días anteriores del GridLayout (manteniendo los encabezados de los días de la semana)
         val childCount = binding.calendarGrid.childCount
@@ -59,22 +65,28 @@ class CalendarFragment : Fragment() {
             binding.calendarGrid.removeViews(7, childCount - 7)
         }
 
-        val daysInMonth = daysInMonthArray(selectedDate)
-        val currentYearMonth = YearMonth.from(selectedDate)
+        val daysInMonth = daysInMonthArray(displayedMonthDate)
+        val currentYearMonth = YearMonth.from(displayedMonthDate)
         
-        val firstOfMonth = selectedDate.withDayOfMonth(1)
+        val firstOfMonth = displayedMonthDate.withDayOfMonth(1)
         val dayOfWeek = firstOfMonth.dayOfWeek.value - 1 // 0 (Lun) a 6 (Dom)
         
         val today = LocalDate.now()
 
         for (i in 0 until 42) {
             val dayText = daysInMonth[i]
-            
             val isCurrentMonth = i in dayOfWeek until (dayOfWeek + currentYearMonth.lengthOfMonth())
-            val isToday = isCurrentMonth && 
-                          dayText.toInt() == today.dayOfMonth && 
-                          selectedDate.month == today.month && 
-                          selectedDate.year == today.year
+            
+            val dateOfThisDay = if (isCurrentMonth) {
+                displayedMonthDate.withDayOfMonth(dayText.toInt())
+            } else if (i < dayOfWeek) {
+                displayedMonthDate.minusMonths(1).withDayOfMonth(dayText.toInt())
+            } else {
+                displayedMonthDate.plusMonths(1).withDayOfMonth(dayText.toInt())
+            }
+
+            val isSelected = dateOfThisDay == selectedDate
+            val isToday = dateOfThisDay == today
 
             val styleRes = when {
                 !isCurrentMonth -> R.style.CalendarDayNumberMuted
@@ -92,26 +104,30 @@ class CalendarFragment : Fragment() {
             gridParams.height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48f, resources.displayMetrics).toInt()
             gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
 
-            if (isToday) {
-                val frameLayout = FrameLayout(requireContext())
-                frameLayout.layoutParams = gridParams
-                
+            val frameLayout = FrameLayout(requireContext())
+            frameLayout.layoutParams = gridParams
+
+            if (isSelected) {
+                textView.setBackgroundResource(R.drawable.bg_day_selected)
+            } else if (isToday) {
                 textView.setBackgroundResource(R.drawable.bg_day_active)
-                val textParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-                // Añadir margen para que el círculo no toque los bordes
-                val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
-                textParams.setMargins(margin, margin, margin, margin)
-                textView.layoutParams = textParams
-                
-                frameLayout.addView(textView)
-                binding.calendarGrid.addView(frameLayout)
-            } else {
-                textView.layoutParams = gridParams
-                binding.calendarGrid.addView(textView)
             }
+
+            val textParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+            textParams.setMargins(margin, margin, margin, margin)
+            textView.layoutParams = textParams
+
+            textView.setOnClickListener {
+                selectedDate = dateOfThisDay
+                setMonthView()
+            }
+
+            frameLayout.addView(textView)
+            binding.calendarGrid.addView(frameLayout)
         }
     }
 
