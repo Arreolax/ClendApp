@@ -36,6 +36,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_header_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_name"
@@ -44,6 +45,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_header_rank"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_rank"
@@ -53,6 +55,7 @@
                 android:textStyle="italic" />
 
             <TextView
+                android:id="@+id/tv_header_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_username"

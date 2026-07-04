@@ -2,7 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ClendApp" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#7C4DFF</item>
+        <item name="colorOnPrimary">@color/white</item>
     </style>
 
     <style name="Theme.ClendApp" parent="Base.Theme.ClendApp" />
