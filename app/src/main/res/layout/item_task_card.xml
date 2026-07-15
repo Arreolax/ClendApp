@@ -20,12 +20,14 @@
             android:orientation="horizontal">
 
             <View
+                android:id="@+id/view_category_indicator"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:background="@drawable/bg_profile_circle"
                 android:backgroundTint="#00C853" />
 
             <TextView
+                android:id="@+id/tv_task_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -47,6 +49,7 @@
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/tv_task_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Task #1"
@@ -55,10 +58,11 @@
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/tv_task_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Lorem ipsum dolor sit amet consectetur adipiscing elit, viverra commodo tempus risus lacinia imperdiet, proin scelerisque mus sed ut senectus."
+        android:text="Lorem ipsum..."
         android:textColor="#999999"
         android:textSize="13sp" />
 </LinearLayout>

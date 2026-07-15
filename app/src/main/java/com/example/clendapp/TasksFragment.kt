@@ -4,14 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.databinding.FragmentTasksBinding
+import kotlinx.coroutines.launch
 
 class TasksFragment : Fragment() {
 
     private var _binding: FragmentTasksBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var tasksAdapter: TasksAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,36 +31,34 @@ class TasksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        setupAllTaskMenus(binding.root)
+        setupRecyclerView()
+        observeTasks()
     }
 
-    private fun setupAllTaskMenus(root: View) {
-        val buttons = mutableListOf<View>()
-        findAllViewsWithTag(root, "task_options_button", buttons)
-        for (button in buttons) {
-            button.setOnClickListener { v ->
-                showPopupMenu(v)
+    private fun setupRecyclerView() {
+        tasksAdapter = TasksAdapter { task ->
+            Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
+        }
+        binding.rvTasks.apply {
+            adapter = tasksAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+    }
+
+    private fun observeTasks() {
+        val database = AppDatabase.getDatabase(requireContext())
+        lifecycleScope.launch {
+            database.tasksDao().getAllTasks().collect { tasks ->
+                if (tasks.isEmpty()) {
+                    binding.rvTasks.visibility = View.GONE
+                    binding.layoutEmptyState.visibility = View.VISIBLE
+                } else {
+                    binding.rvTasks.visibility = View.VISIBLE
+                    binding.layoutEmptyState.visibility = View.GONE
+                    tasksAdapter.submitTasks(tasks)
+                }
             }
         }
-    }
-
-    private fun findAllViewsWithTag(root: View, tag: String, result: MutableList<View>) {
-        if (root.tag == tag) {
-            result.add(root)
-        }
-        if (root is ViewGroup) {
-            for (i in 0 until root.childCount) {
-                findAllViewsWithTag(root.getChildAt(i), tag, result)
-            }
-        }
-    }
-
-    private fun showPopupMenu(view: View) {
-        val popup = PopupMenu(requireContext(), view)
-        popup.menu.add("Edit")
-        popup.menu.add("Delete")
-        popup.menu.add("Mark as done")
-        popup.show()
     }
 
     override fun onDestroyView() {
