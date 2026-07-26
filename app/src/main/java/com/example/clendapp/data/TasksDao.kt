@@ -20,8 +20,11 @@ interface TasksDao {
     suspend fun delete(task: Tasks)
 
     @Query("SELECT * from tasks WHERE id = :id")
-    fun getTask(id: Int): Flow<Tasks>
+    fun getTask(id: Int): Flow<Tasks?>
 
     @Query("SELECT * from tasks ORDER BY date ASC, startDate ASC")
     fun getAllTasks(): Flow<List<Tasks>>
+
+    @Query("SELECT * FROM tasks WHERE date >= :startOfDay AND date <= :endOfDay ORDER BY startDate ASC")
+    fun getTasksForDate(startOfDay: Long, endOfDay: Long): Flow<List<Tasks>>
 }

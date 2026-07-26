@@ -9,7 +9,12 @@ import com.example.clendapp.databinding.ItemTaskCardBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TasksAdapter(private val onTaskClick: (Tasks) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TasksAdapter(
+    private val onTaskClick: (Tasks) -> Unit,
+    private val onEditClick: (Tasks) -> Unit,
+    private val onDeleteClick: (Tasks) -> Unit,
+    private val onDoneClick: (Tasks) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items: List<TaskListItem> = emptyList()
 
@@ -71,12 +76,42 @@ class TasksAdapter(private val onTaskClick: (Tasks) -> Unit) : RecyclerView.Adap
             binding.tvTaskTitle.text = task.title
             binding.tvTaskDescription.text = task.description ?: ""
             
+            // Tachado si está completada
+            if (task.isCompleted) {
+                binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                binding.root.alpha = 0.6f
+            } else {
+                binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                binding.root.alpha = 1.0f
+            }
+
             val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
             val start = timeFormatter.format(Date(task.startDate))
             val end = timeFormatter.format(Date(task.dueDate))
             binding.tvTaskTime.text = "$start - $end"
 
             binding.root.setOnClickListener { onTaskClick(task) }
+            
+            binding.btnTaskOptions.setOnClickListener { view ->
+                val popup = android.widget.PopupMenu(view.context, view)
+                if (task.isCompleted) {
+                    popup.menu.add("Marcar como pendiente")
+                } else {
+                    popup.menu.add("Marcar como hecha")
+                }
+                popup.menu.add("Editar")
+                popup.menu.add("Eliminar")
+                
+                popup.setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.title) {
+                        "Marcar como hecha", "Marcar como pendiente" -> onDoneClick(task)
+                        "Editar" -> onEditClick(task)
+                        "Eliminar" -> onDeleteClick(task)
+                    }
+                    true
+                }
+                popup.show()
+            }
             
             // Color de categoría según el ID
             val color = when (task.category) {

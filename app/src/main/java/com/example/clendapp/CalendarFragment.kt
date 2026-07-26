@@ -11,10 +11,18 @@ import android.widget.FrameLayout
 import android.widget.GridLayout
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.databinding.FragmentCalendarBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -25,6 +33,9 @@ class CalendarFragment : Fragment() {
 
     private var displayedMonthDate: LocalDate = LocalDate.now()
     private var selectedDate: LocalDate = LocalDate.now()
+    
+    private lateinit var tasksAdapter: TasksAdapter
+    private var tasksJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +49,9 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupRecyclerView()
         setMonthView()
+        observeTasksForSelectedDate()
 
         binding.btnPrevMonth.setOnClickListener {
             displayedMonthDate = displayedMonthDate.minusMonths(1)
@@ -51,30 +64,60 @@ class CalendarFragment : Fragment() {
         }
 
         binding.fabAddTask.setOnClickListener {
-            val addTaskSheet = AddTaskSheetFragment()
+            val dateMillis = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val addTaskSheet = AddTaskSheetFragment.newInstance(dateMillis)
             addTaskSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
         }
-
-        setupAllTaskMenus(binding.root)
     }
 
-    private fun setupAllTaskMenus(root: View) {
-        val buttons = mutableListOf<View>()
-        findAllViewsWithTag(root, "task_options_button", buttons)
-        for (button in buttons) {
-            button.setOnClickListener { v ->
-                showPopupMenu(v)
+    private fun setupRecyclerView() {
+        val database = AppDatabase.getDatabase(requireContext())
+        tasksAdapter = TasksAdapter(
+            onTaskClick = { task ->
+                Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
+            },
+            onEditClick = { task ->
+                val editSheet = AddTaskSheetFragment.newEditInstance(task.id)
+                editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
+            },
+            onDeleteClick = { task ->
+                lifecycleScope.launch {
+                    database.tasksDao().delete(task)
+                    Toast.makeText(requireContext(), "Tarea eliminada", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDoneClick = { task ->
+                lifecycleScope.launch {
+                    val updatedTask = task.copy(isCompleted = !task.isCompleted)
+                    database.tasksDao().update(updatedTask)
+                    val message = if (updatedTask.isCompleted) "Tarea completada" else "Tarea pendiente"
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                }
             }
+        )
+        binding.rvCalendarTasks.apply {
+            adapter = tasksAdapter
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
-    private fun findAllViewsWithTag(root: View, tag: String, result: MutableList<View>) {
-        if (root.tag == tag) {
-            result.add(root)
-        }
-        if (root is ViewGroup) {
-            for (i in 0 until root.childCount) {
-                findAllViewsWithTag(root.getChildAt(i), tag, result)
+    private fun observeTasksForSelectedDate() {
+        tasksJob?.cancel()
+        
+        val startOfDay = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endOfDay = selectedDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        val database = AppDatabase.getDatabase(requireContext())
+        tasksJob = lifecycleScope.launch {
+            database.tasksDao().getTasksForDate(startOfDay, endOfDay).collect { tasks ->
+                if (tasks.isEmpty()) {
+                    binding.rvCalendarTasks.visibility = View.GONE
+                    binding.tvEmptyTasks.visibility = View.VISIBLE
+                } else {
+                    binding.rvCalendarTasks.visibility = View.VISIBLE
+                    binding.tvEmptyTasks.visibility = View.GONE
+                    tasksAdapter.submitTasks(tasks)
+                }
             }
         }
     }
@@ -91,7 +134,6 @@ class CalendarFragment : Fragment() {
         binding.tvMonth.text = displayedMonthDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
         binding.tvYear.text = displayedMonthDate.year.toString()
 
-        // Limpiar días anteriores del GridLayout (manteniendo los encabezados de los días de la semana)
         val childCount = binding.calendarGrid.childCount
         if (childCount > 7) {
             binding.calendarGrid.removeViews(7, childCount - 7)
@@ -101,7 +143,7 @@ class CalendarFragment : Fragment() {
         val currentYearMonth = YearMonth.from(displayedMonthDate)
         
         val firstOfMonth = displayedMonthDate.withDayOfMonth(1)
-        val dayOfWeek = firstOfMonth.dayOfWeek.value - 1 // 0 (Lun) a 6 (Dom)
+        val dayOfWeek = firstOfMonth.dayOfWeek.value - 1 
         
         val today = LocalDate.now()
 
@@ -156,6 +198,7 @@ class CalendarFragment : Fragment() {
             textView.setOnClickListener {
                 selectedDate = dateOfThisDay
                 setMonthView()
+                observeTasksForSelectedDate()
             }
 
             frameLayout.addView(textView)

@@ -12,6 +12,7 @@ import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.BottomSheetAddTaskBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,6 +26,22 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
     private var startTime: Calendar = Calendar.getInstance()
     private var endTime: Calendar = Calendar.getInstance()
     private var selectedCategory: Int = 1
+    private var editingTaskId: Int? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            if (it.containsKey(ARG_TASK_ID)) {
+                editingTaskId = it.getInt(ARG_TASK_ID)
+            }
+            if (it.containsKey(ARG_DATE)) {
+                val dateMillis = it.getLong(ARG_DATE)
+                selectedDate.timeInMillis = dateMillis
+                startTime.timeInMillis = dateMillis
+                endTime.timeInMillis = dateMillis
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,9 +57,44 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
 
         setupDateTimePickers()
         setupCategorySelection()
+        
+        editingTaskId?.let { loadTaskData(it) }
 
         binding.btnCreateTask.setOnClickListener {
             saveTask()
+        }
+    }
+
+    private fun loadTaskData(taskId: Int) {
+        val database = AppDatabase.getDatabase(requireContext())
+        lifecycleScope.launch {
+            val task = database.tasksDao().getTask(taskId).first()
+            task?.let {
+                binding.etTaskName.setText(it.title)
+                binding.etTaskNote.setText(it.description)
+                selectedDate.timeInMillis = it.date
+                startTime.timeInMillis = it.startDate
+                endTime.timeInMillis = it.dueDate
+                selectedCategory = it.category
+                binding.switchRepeat.isChecked = it.repeat
+                
+                binding.btnCreateTask.text = "Update Task"
+                updateUI()
+            }
+        }
+    }
+
+    private fun updateUI() {
+        val dateFormatter = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
+        val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        binding.tvDate.text = dateFormatter.format(selectedDate.time)
+        binding.tvStartTime.text = timeFormatter.format(startTime.time)
+        binding.tvEndTime.text = timeFormatter.format(endTime.time)
+        
+        // Actualizar categorías visualmente
+        val categories = listOf(binding.category1, binding.category2, binding.category3)
+        categories.forEachIndexed { index, textView ->
+            textView.alpha = if (selectedCategory == index + 1) 1.0f else 0.5f
         }
     }
 
@@ -138,20 +190,40 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
             set(Calendar.MINUTE, endTime.get(Calendar.MINUTE))
         }
 
+        // Validación: la fecha/hora inicial no debe ser mayor que la final
+        if (finalStart.after(finalEnd)) {
+            Toast.makeText(requireContext(), "La hora de inicio no puede ser posterior a la de fin", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val database = AppDatabase.getDatabase(requireContext())
+        
+        // Normalizar la fecha al inicio del día (00:00:00) para facilitar el agrupamiento y búsqueda
+        val normalizedDate = (selectedDate.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
         val newTask = Tasks(
+            id = editingTaskId ?: 0,
             title = title,
             description = note,
             category = selectedCategory,
-            date = selectedDate.timeInMillis,
+            date = normalizedDate.timeInMillis,
             startDate = finalStart.timeInMillis,
             dueDate = finalEnd.timeInMillis,
             repeat = binding.switchRepeat.isChecked
         )
 
         lifecycleScope.launch {
-            database.tasksDao().insert(newTask)
-            Toast.makeText(requireContext(), "Task created successfully", Toast.LENGTH_SHORT).show()
+            if (editingTaskId == null) {
+                database.tasksDao().insert(newTask)
+            } else {
+                database.tasksDao().update(newTask)
+            }
+            Toast.makeText(requireContext(), if (editingTaskId == null) "Task created successfully" else "Task updated successfully", Toast.LENGTH_SHORT).show()
             dismiss()
         }
     }
@@ -163,5 +235,23 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "AddTaskSheetFragment"
+        private const val ARG_DATE = "arg_date"
+        private const val ARG_TASK_ID = "arg_task_id"
+
+        fun newInstance(dateMillis: Long): AddTaskSheetFragment {
+            return AddTaskSheetFragment().apply {
+                arguments = Bundle().apply {
+                    putLong(ARG_DATE, dateMillis)
+                }
+            }
+        }
+
+        fun newEditInstance(taskId: Int): AddTaskSheetFragment {
+            return AddTaskSheetFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_TASK_ID, taskId)
+                }
+            }
+        }
     }
 }

@@ -36,9 +36,30 @@ class TasksFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        tasksAdapter = TasksAdapter { task ->
-            Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
-        }
+        val database = AppDatabase.getDatabase(requireContext())
+        tasksAdapter = TasksAdapter(
+            onTaskClick = { task ->
+                Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
+            },
+            onEditClick = { task ->
+                val editSheet = AddTaskSheetFragment.newEditInstance(task.id)
+                editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
+            },
+            onDeleteClick = { task ->
+                lifecycleScope.launch {
+                    database.tasksDao().delete(task)
+                    Toast.makeText(requireContext(), "Tarea eliminada", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDoneClick = { task ->
+                lifecycleScope.launch {
+                    val updatedTask = task.copy(isCompleted = !task.isCompleted)
+                    database.tasksDao().update(updatedTask)
+                    val message = if (updatedTask.isCompleted) "Tarea completada" else "Tarea pendiente"
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
         binding.rvTasks.apply {
             adapter = tasksAdapter
             layoutManager = LinearLayoutManager(requireContext())
