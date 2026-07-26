@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#5B54D6"
+    android:background="#6b61ff"
     tools:context=".Cronometro">
 
     <TextView
@@ -246,14 +246,14 @@
         android:id="@+id/btn_start"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="24dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_button_comenzar"
         android:text="Comenzar  →"
         android:textAllCaps="false"
-        android:textColor="#2E2A6E"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btn_volver"
