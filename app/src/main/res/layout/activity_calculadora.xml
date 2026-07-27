@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EDEDF4"
+    android:padding="16dp"
+    tools:context=".calculadora">
+
+    <TextView
+        android:id="@+id/btn_back"
+        android:layout_width="14dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="16dp"
+        android:text="‹"
+        android:textColor="#6C63FF"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_titulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/hey_comic"
+        android:text="Calculator"
+        android:textColor="#6C63FF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+        app:layout_constraintStart_toEndOf="@+id/btn_back"
+        app:layout_constraintTop_toTopOf="@+id/btn_back"
+        app:layout_constraintVertical_bias="0.962" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/display_card"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_pantalla"
+        android:padding="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back">
+
+        <TextView
+            android:id="@+id/tv_operacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/hey_comic"
+            android:text="50+50+20-10-10"
+            android:textColor="#9A9AA5"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_resultado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/hey_comic"
+            android:text="100"
+            android:textColor="#1A1A2E"
+            android:textSize="44sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Pastilla "Juego" -->
+    <TextView
+        android:id="@+id/btn_juego"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:background="@drawable/bg_boton_juego"
+        android:fontFamily="@font/hey_comic"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="Game"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/display_card" />
+
+    <!-- Teclado -->
+    <GridLayout
+        android:id="@+id/keypad"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:columnCount="4"
+        android:rowCount="5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_juego"
+        app:layout_constraintVertical_bias="0.0">
+
+        <!-- Fila 1 -->
+        <Button
+            android:id="@+id/btn_c"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_clear"
+            android:fontFamily="@font/hey_comic"
+            android:text="C"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_parentesis"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_funcion"
+            android:fontFamily="@font/hey_comic"
+            android:text="( )"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_porcentaje"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_funcion"
+            android:fontFamily="@font/hey_comic"
+            android:text="%"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_dividir"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_operador"
+            android:fontFamily="@font/hey_comic"
+            android:text="÷"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <!-- Fila 2 -->
+        <Button
+            android:id="@+id/btn_7"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="7"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_8"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="8"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_9"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="9"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_restar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_operador"
+            android:fontFamily="@font/hey_comic"
+            android:text="-"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <!-- Fila 3 -->
+        <Button
+            android:id="@+id/btn_4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="4"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_5"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="5"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_6"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="6"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_sumar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_operador"
+            android:fontFamily="@font/hey_comic"
+            android:text="+"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <!-- Fila 4 -->
+        <Button
+            android:id="@+id/btn_1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="1"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="2"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="3"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_multiplicar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_operador"
+            android:fontFamily="@font/hey_comic"
+            android:text="×"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <!-- Fila 5 -->
+        <Button
+            android:id="@+id/btn_mas_menos"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="+/-"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_0"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="0"
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_punto"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_numero"
+            android:fontFamily="@font/hey_comic"
+            android:text="."
+            android:textAllCaps="false"
+            android:textColor="#1A1A2E"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btn_igual"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_tecla_igual"
+            android:fontFamily="@font/hey_comic"
+            android:text="="
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@null" />
+
+    </GridLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

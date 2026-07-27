@@ -87,7 +87,9 @@ class MainActivity : AppCompatActivity() {
             closeDrawerAndNavigate()
         }
         binding.btnCalculadora.setOnClickListener {
-            closeDrawerAndNavigate()
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            val intent = Intent(this, calculadora::class.java)
+            startActivity(intent)
         }
         binding.btnUnknown.setOnClickListener {
             closeDrawerAndNavigate()
