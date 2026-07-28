@@ -71,8 +71,9 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = database.userDao().getUserById(userId)
                 user?.let {
+                    val rank = database.ranksDao().getRankById(it.id_rank)
                     binding.navHeader.tvHeaderName.text = it.fullName
-                    binding.navHeader.tvHeaderRank.text = "Rank: ${it.rank}"
+                    binding.navHeader.tvHeaderRank.text = "Rank: ${rank?.name ?: "Unknown"}"
                     binding.navHeader.tvHeaderUsername.text = "@${it.username}"
                 }
             }

@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.FragmentCalendarBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -36,6 +37,8 @@ class CalendarFragment : Fragment() {
     
     private lateinit var tasksAdapter: TasksAdapter
     private var tasksJob: Job? = null
+    private var monthTasksJob: Job? = null
+    private var tasksByDate: Map<LocalDate, List<Tasks>> = emptyMap()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,22 +54,49 @@ class CalendarFragment : Fragment() {
 
         setupRecyclerView()
         setMonthView()
+        observeMonthTasks()
         observeTasksForSelectedDate()
 
         binding.btnPrevMonth.setOnClickListener {
             displayedMonthDate = displayedMonthDate.minusMonths(1)
             setMonthView()
+            observeMonthTasks()
         }
 
         binding.btnNextMonth.setOnClickListener {
             displayedMonthDate = displayedMonthDate.plusMonths(1)
             setMonthView()
+            observeMonthTasks()
         }
 
         binding.fabAddTask.setOnClickListener {
             val dateMillis = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             val addTaskSheet = AddTaskSheetFragment.newInstance(dateMillis)
             addTaskSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
+        }
+    }
+
+    private fun observeMonthTasks() {
+        monthTasksJob?.cancel()
+        
+        val firstOfMonth = displayedMonthDate.withDayOfMonth(1)
+        val dayOfWeek = firstOfMonth.dayOfWeek.value - 1
+        
+        val startDate = firstOfMonth.minusDays(dayOfWeek.toLong())
+        val endDate = startDate.plusDays(41)
+
+        val startMillis = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endMillis = endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        val database = AppDatabase.getDatabase(requireContext())
+        monthTasksJob = lifecycleScope.launch {
+            database.tasksDao().getTasksForDate(startMillis, endMillis).collect { tasks ->
+                tasksByDate = tasks.groupBy { 
+                    java.time.Instant.ofEpochMilli(it.date).atZone(ZoneId.systemDefault()).toLocalDate()
+                }
+                // Refresh the view to show dots
+                setMonthView()
+            }
         }
     }
 
@@ -146,6 +176,7 @@ class CalendarFragment : Fragment() {
         val dayOfWeek = firstOfMonth.dayOfWeek.value - 1 
         
         val today = LocalDate.now()
+        val inflater = LayoutInflater.from(requireContext())
 
         for (i in 0 until 42) {
             val dayText = daysInMonth[i]
@@ -168,41 +199,59 @@ class CalendarFragment : Fragment() {
                 else -> R.style.CalendarDayNumber
             }
 
-            val contextWrapper = ContextThemeWrapper(requireContext(), styleRes)
-            val textView = TextView(contextWrapper, null, 0)
-            textView.text = dayText
-            textView.gravity = Gravity.CENTER
+            val dayView = inflater.inflate(R.layout.item_calendar_day, binding.calendarGrid, false)
+            val tvDayNumber = dayView.findViewById<TextView>(R.id.tv_day_number)
+            val layoutDots = dayView.findViewById<android.widget.LinearLayout>(R.id.layout_dots)
+
+            tvDayNumber.text = dayText
+            tvDayNumber.setTextAppearance(styleRes)
 
             val gridParams = GridLayout.LayoutParams()
             gridParams.width = 0
-            gridParams.height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48f, resources.displayMetrics).toInt()
+            gridParams.height = GridLayout.LayoutParams.WRAP_CONTENT
             gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-
-            val frameLayout = FrameLayout(requireContext())
-            frameLayout.layoutParams = gridParams
+            dayView.layoutParams = gridParams
 
             if (isSelected) {
-                textView.setBackgroundResource(R.drawable.bg_day_selected)
+                tvDayNumber.setBackgroundResource(R.drawable.bg_day_selected)
+                tvDayNumber.setTextColor(android.graphics.Color.BLACK)
             } else if (isToday) {
-                textView.setBackgroundResource(R.drawable.bg_day_active)
+                tvDayNumber.setBackgroundResource(R.drawable.bg_day_active)
             }
 
-            val textParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-            val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
-            textParams.setMargins(margin, margin, margin, margin)
-            textView.layoutParams = textParams
+            // Add dots based on tasks
+            val tasksForDay: List<Tasks> = tasksByDate[dateOfThisDay] ?: emptyList()
+            val dotCount = tasksForDay.size.coerceAtMost(3)
+            
+            for (j in 0 until dotCount) {
+                val dot = View(requireContext())
+                val dotSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+                val dotParams = android.widget.LinearLayout.LayoutParams(dotSize, dotSize)
+                dotParams.setMargins(2, 0, 2, 0)
+                dot.layoutParams = dotParams
+                
+                val currentTask = tasksForDay[j]
+                val colorHex = when (currentTask.category) {
+                    1 -> "#673AB7" // Purple
+                    2 -> "#4CAF50" // Green
+                    else -> "#2196F3" // Blue
+                }
+                
+                val shape = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(android.graphics.Color.parseColor(colorHex))
+                }
+                dot.background = shape
+                layoutDots.addView(dot)
+            }
 
-            textView.setOnClickListener {
+            dayView.setOnClickListener {
                 selectedDate = dateOfThisDay
                 setMonthView()
                 observeTasksForSelectedDate()
             }
 
-            frameLayout.addView(textView)
-            binding.calendarGrid.addView(frameLayout)
+            binding.calendarGrid.addView(dayView)
         }
     }
 

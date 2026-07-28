@@ -11,12 +11,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RanksDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(rank: Ranks)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(ranks: List<Ranks>)
 
-    @Query("SELECT * FROM ranks")
-    fun getAll(): List<Ranks>
+    @Query("SELECT * FROM ranks ORDER BY id ASC")
+    suspend fun getAll(): List<Ranks>
+
+    @Query("SELECT * FROM ranks WHERE id = :id")
+    suspend fun getRankById(id: Int): Ranks?
 }
