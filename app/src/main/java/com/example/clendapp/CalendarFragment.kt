@@ -231,7 +231,7 @@ class CalendarFragment : Fragment() {
                 dot.layoutParams = dotParams
                 
                 val currentTask = tasksForDay[j]
-                val colorHex = when (currentTask.category) {
+                val colorHex = when (currentTask.id_category) {
                     1 -> "#673AB7" // Purple
                     2 -> "#4CAF50" // Green
                     else -> "#2196F3" // Blue

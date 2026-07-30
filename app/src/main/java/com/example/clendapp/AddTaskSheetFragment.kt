@@ -2,10 +2,12 @@ package com.example.clendapp
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
@@ -58,7 +60,13 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
         setupDateTimePickers()
         setupCategorySelection()
         
-        editingTaskId?.let { loadTaskData(it) }
+        if (editingTaskId != null) {
+            loadTaskData(editingTaskId!!)
+        } else {
+            binding.btnCreateTask.text = "Create Task"
+            binding.btnCreateTask.setTextColor(android.graphics.Color.WHITE)
+            updateUI()
+        }
 
         binding.btnCreateTask.setOnClickListener {
             saveTask()
@@ -75,7 +83,7 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 selectedDate.timeInMillis = it.date
                 startTime.timeInMillis = it.startDate
                 endTime.timeInMillis = it.dueDate
-                selectedCategory = it.category
+                selectedCategory = it.id_category
                 binding.switchRepeat.isChecked = it.repeat
                 
                 binding.btnCreateTask.text = "Update Task"
@@ -91,10 +99,14 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
         binding.tvStartTime.text = timeFormatter.format(startTime.time)
         binding.tvEndTime.text = timeFormatter.format(endTime.time)
         
-        // Actualizar categorías visualmente
-        val categories = listOf(binding.category1, binding.category2, binding.category3)
-        categories.forEachIndexed { index, textView ->
-            textView.alpha = if (selectedCategory == index + 1) 1.0f else 0.5f
+        updateCategorySelectionVisuals()
+    }
+
+    private fun updateCategorySelectionVisuals() {
+        for (i in 0 until binding.layoutCategories.childCount) {
+            val child = binding.layoutCategories.getChildAt(i)
+            val categoryId = child.tag as? Int
+            child.alpha = if (selectedCategory == categoryId) 1.0f else 0.5f
         }
     }
 
@@ -152,20 +164,44 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupCategorySelection() {
-        val categories = listOf(binding.category1, binding.category2, binding.category3)
-        
-        categories.forEachIndexed { index, textView ->
-            textView.setOnClickListener {
-                selectedCategory = index + 1
-                // Visual feedback (optional but recommended)
-                categories.forEach { it.alpha = 0.5f }
-                textView.alpha = 1.0f
+        val database = AppDatabase.getDatabase(requireContext())
+        lifecycleScope.launch {
+            val categories = database.categoriesDao().getAll()
+            binding.layoutCategories.removeAllViews()
+            
+            categories.forEach { category ->
+                val categoryView = LayoutInflater.from(requireContext())
+                    .inflate(R.layout.item_category_chip, binding.layoutCategories, false) as TextView
+                
+                categoryView.text = category.name
+                categoryView.tag = category.id // Guardar ID para saber cuál está seleccionado
+                
+                // Color y fondo según el ID
+                val (bgRes, colorHex) = when (category.id % 3) {
+                    1 -> Pair(R.drawable.bg_category_purple, "#673AB7")
+                    2 -> Pair(R.drawable.bg_category_green, "#4CAF50")
+                    else -> Pair(R.drawable.bg_category_blue, "#2196F3")
+                }
+                
+                categoryView.setBackgroundResource(bgRes)
+                val colorInt = android.graphics.Color.parseColor(colorHex)
+                categoryView.setTextColor(colorInt)
+                categoryView.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(colorInt)
+
+                categoryView.alpha = if (selectedCategory == category.id) 1.0f else 0.5f
+                
+                categoryView.setOnClickListener {
+                    selectedCategory = category.id
+                    // Actualizar opacidad de todos los hijos
+                    for (i in 0 until binding.layoutCategories.childCount) {
+                        binding.layoutCategories.getChildAt(i).alpha = 0.5f
+                    }
+                    categoryView.alpha = 1.0f
+                }
+                
+                binding.layoutCategories.addView(categoryView)
             }
         }
-        // Default selection
-        binding.category1.alpha = 1.0f
-        binding.category2.alpha = 0.5f
-        binding.category3.alpha = 0.5f
     }
 
     private fun saveTask() {
@@ -198,6 +234,15 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
 
         val database = AppDatabase.getDatabase(requireContext())
         
+        // Obtener el ID del usuario logeado desde SharedPreferences
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+
+        if (loggedInUserId == -1) {
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         // Normalizar la fecha al inicio del día (00:00:00) para facilitar el agrupamiento y búsqueda
         val normalizedDate = (selectedDate.clone() as Calendar).apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -210,11 +255,12 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
             id = editingTaskId ?: 0,
             title = title,
             description = note,
-            category = selectedCategory,
+            id_category = selectedCategory,
             date = normalizedDate.timeInMillis,
             startDate = finalStart.timeInMillis,
             dueDate = finalEnd.timeInMillis,
-            repeat = binding.switchRepeat.isChecked
+            repeat = binding.switchRepeat.isChecked,
+            id_user = loggedInUserId
         )
 
         lifecycleScope.launch {

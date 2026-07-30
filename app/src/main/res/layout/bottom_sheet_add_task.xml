@@ -157,54 +157,20 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <LinearLayout
-        android:id="@+id/layout_categories"
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:orientation="horizontal">
+        android:scrollbars="none">
 
-        <TextView
-            android:id="@+id/category_1"
+        <LinearLayout
+            android:id="@+id/layout_categories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_category_purple"
-            android:drawableStart="@drawable/ic_profile"
-            android:drawablePadding="8dp"
-            android:drawableTint="#673AB7"
-            android:padding="8dp"
-            android:text="Work"
-            android:textColor="#673AB7"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/category_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_category_green"
-            android:drawableStart="@drawable/ic_profile"
-            android:drawablePadding="8dp"
-            android:drawableTint="#4CAF50"
-            android:padding="8dp"
-            android:text="Personal"
-            android:textColor="#4CAF50"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/category_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_category_blue"
-            android:drawableStart="@drawable/ic_profile"
-            android:drawablePadding="8dp"
-            android:drawableTint="#2196F3"
-            android:padding="8dp"
-            android:text="Others"
-            android:textColor="#2196F3"
-            android:textSize="12sp" />
-    </LinearLayout>
+            android:orientation="horizontal">
+            <!-- Categories will be added here dynamically -->
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <TextView
         android:layout_width="wrap_content"
@@ -220,6 +186,7 @@
         android:layout_height="56dp"
         android:text="Create Task"
         android:textAllCaps="false"
+        android:textColor="#FFFFFF"
         app:backgroundTint="#7C4DFF"
         app:cornerRadius="12dp" />
 

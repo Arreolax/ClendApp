@@ -29,6 +29,7 @@
                     android:layout_marginStart="16dp"
                     android:text="Calendar"
                     android:textColor="#2A2A2A"
+                    android:fontFamily="@font/hey_comic"
                     android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>

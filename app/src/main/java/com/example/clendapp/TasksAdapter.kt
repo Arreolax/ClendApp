@@ -114,7 +114,7 @@ class TasksAdapter(
             }
             
             // Color de categoría según el ID
-            val color = when (task.category) {
+            val color = when (task.id_category) {
                 1 -> "#673AB7" // Purple
                 2 -> "#4CAF50" // Green
                 else -> "#2196F3" // Blue

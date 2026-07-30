@@ -9,9 +9,10 @@ data class Tasks(
     val title: String,
     val description: String?,
     val isCompleted: Boolean = false,
-    val category: Int,
+    val id_category: Int,
     val date: Long,
     val startDate: Long,
     val dueDate: Long,
-    val repeat: Boolean = false
+    val repeat: Boolean = false,
+    val id_user: Int
 )
