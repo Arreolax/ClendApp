@@ -25,7 +25,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
 
     private var selectedDate: Calendar = Calendar.getInstance()
-    private var startTime: Calendar = Calendar.getInstance()
     private var endTime: Calendar = Calendar.getInstance()
     private var selectedCategory: Int = 1
     private var editingTaskId: Int? = null
@@ -39,7 +38,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
             if (it.containsKey(ARG_DATE)) {
                 val dateMillis = it.getLong(ARG_DATE)
                 selectedDate.timeInMillis = dateMillis
-                startTime.timeInMillis = dateMillis
                 endTime.timeInMillis = dateMillis
             }
         }
@@ -81,7 +79,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 binding.etTaskName.setText(it.title)
                 binding.etTaskNote.setText(it.description)
                 selectedDate.timeInMillis = it.date
-                startTime.timeInMillis = it.startDate
                 endTime.timeInMillis = it.dueDate
                 selectedCategory = it.id_category
                 binding.switchRepeat.isChecked = it.repeat
@@ -96,7 +93,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
         val dateFormatter = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
         val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
         binding.tvDate.text = dateFormatter.format(selectedDate.time)
-        binding.tvStartTime.text = timeFormatter.format(startTime.time)
         binding.tvEndTime.text = timeFormatter.format(endTime.time)
         
         updateCategorySelectionVisuals()
@@ -115,7 +111,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
         val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         binding.tvDate.text = dateFormatter.format(selectedDate.time)
-        binding.tvStartTime.text = timeFormatter.format(startTime.time)
         binding.tvEndTime.text = timeFormatter.format(endTime.time)
 
         binding.layoutDate.setOnClickListener {
@@ -130,21 +125,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 selectedDate.get(Calendar.DAY_OF_MONTH)
             )
             datePickerDialog.show()
-        }
-
-        binding.layoutStartTime.setOnClickListener {
-            val timePickerDialog = TimePickerDialog(
-                requireContext(),
-                { _, hourOfDay, minute ->
-                    startTime.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                    startTime.set(Calendar.MINUTE, minute)
-                    binding.tvStartTime.text = timeFormatter.format(startTime.time)
-                },
-                startTime.get(Calendar.HOUR_OF_DAY),
-                startTime.get(Calendar.MINUTE),
-                false
-            )
-            timePickerDialog.show()
         }
 
         binding.layoutEndTime.setOnClickListener {
@@ -213,23 +193,10 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
             return
         }
 
-        // Combinar fecha seleccionada con horas de inicio/fin
-        val finalStart = Calendar.getInstance().apply {
-            timeInMillis = selectedDate.timeInMillis
-            set(Calendar.HOUR_OF_DAY, startTime.get(Calendar.HOUR_OF_DAY))
-            set(Calendar.MINUTE, startTime.get(Calendar.MINUTE))
-        }
-
         val finalEnd = Calendar.getInstance().apply {
             timeInMillis = selectedDate.timeInMillis
             set(Calendar.HOUR_OF_DAY, endTime.get(Calendar.HOUR_OF_DAY))
             set(Calendar.MINUTE, endTime.get(Calendar.MINUTE))
-        }
-
-        // Validación: la fecha/hora inicial no debe ser mayor que la final
-        if (finalStart.after(finalEnd)) {
-            Toast.makeText(requireContext(), "La hora de inicio no puede ser posterior a la de fin", Toast.LENGTH_SHORT).show()
-            return
         }
 
         val database = AppDatabase.getDatabase(requireContext())
@@ -257,7 +224,6 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
             description = note,
             id_category = selectedCategory,
             date = normalizedDate.timeInMillis,
-            startDate = finalStart.timeInMillis,
             dueDate = finalEnd.timeInMillis,
             repeat = binding.switchRepeat.isChecked,
             id_user = loggedInUserId

@@ -86,27 +86,28 @@ class TasksAdapter(
             }
 
             val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val start = timeFormatter.format(Date(task.startDate))
             val end = timeFormatter.format(Date(task.dueDate))
-            binding.tvTaskTime.text = "$start - $end"
+            binding.tvTaskTime.text = end
 
             binding.root.setOnClickListener { onTaskClick(task) }
             
             binding.btnTaskOptions.setOnClickListener { view ->
                 val popup = android.widget.PopupMenu(view.context, view)
+                val context = view.context
                 if (task.isCompleted) {
-                    popup.menu.add("Marcar como pendiente")
+                    popup.menu.add(context.getString(R.string.mark_as_pending))
                 } else {
-                    popup.menu.add("Marcar como hecha")
+                    popup.menu.add(context.getString(R.string.mark_as_done))
                 }
-                popup.menu.add("Editar")
-                popup.menu.add("Eliminar")
+                popup.menu.add(context.getString(R.string.edit))
+                popup.menu.add(context.getString(R.string.delete))
                 
                 popup.setOnMenuItemClickListener { menuItem ->
                     when (menuItem.title) {
-                        "Marcar como hecha", "Marcar como pendiente" -> onDoneClick(task)
-                        "Editar" -> onEditClick(task)
-                        "Eliminar" -> onDeleteClick(task)
+                        context.getString(R.string.mark_as_done), 
+                        context.getString(R.string.mark_as_pending) -> onDoneClick(task)
+                        context.getString(R.string.edit) -> onEditClick(task)
+                        context.getString(R.string.delete) -> onDeleteClick(task)
                     }
                     true
                 }

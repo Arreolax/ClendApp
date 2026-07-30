@@ -1,5 +1,6 @@
 package com.example.clendapp
 
+import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.ContextThemeWrapper
@@ -79,6 +80,10 @@ class CalendarFragment : Fragment() {
     private fun observeMonthTasks() {
         monthTasksJob?.cancel()
         
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+        if (loggedInUserId == -1) return
+        
         val firstOfMonth = displayedMonthDate.withDayOfMonth(1)
         val dayOfWeek = firstOfMonth.dayOfWeek.value - 1
         
@@ -90,7 +95,7 @@ class CalendarFragment : Fragment() {
 
         val database = AppDatabase.getDatabase(requireContext())
         monthTasksJob = lifecycleScope.launch {
-            database.tasksDao().getTasksForDate(startMillis, endMillis).collect { tasks ->
+            database.tasksDao().getTasksForDate(loggedInUserId, startMillis, endMillis).collect { tasks ->
                 tasksByDate = tasks.groupBy { 
                     java.time.Instant.ofEpochMilli(it.date).atZone(ZoneId.systemDefault()).toLocalDate()
                 }
@@ -104,7 +109,7 @@ class CalendarFragment : Fragment() {
         val database = AppDatabase.getDatabase(requireContext())
         tasksAdapter = TasksAdapter(
             onTaskClick = { task ->
-                Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Task: ${task.title}", Toast.LENGTH_SHORT).show()
             },
             onEditClick = { task ->
                 val editSheet = AddTaskSheetFragment.newEditInstance(task.id)
@@ -113,14 +118,14 @@ class CalendarFragment : Fragment() {
             onDeleteClick = { task ->
                 lifecycleScope.launch {
                     database.tasksDao().delete(task)
-                    Toast.makeText(requireContext(), "Tarea eliminada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
             onDoneClick = { task ->
                 lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
-                    val message = if (updatedTask.isCompleted) "Tarea completada" else "Tarea pendiente"
+                    val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -134,12 +139,16 @@ class CalendarFragment : Fragment() {
     private fun observeTasksForSelectedDate() {
         tasksJob?.cancel()
         
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+        if (loggedInUserId == -1) return
+        
         val startOfDay = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val endOfDay = selectedDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val database = AppDatabase.getDatabase(requireContext())
         tasksJob = lifecycleScope.launch {
-            database.tasksDao().getTasksForDate(startOfDay, endOfDay).collect { tasks ->
+            database.tasksDao().getTasksForDate(loggedInUserId, startOfDay, endOfDay).collect { tasks ->
                 if (tasks.isEmpty()) {
                     binding.rvCalendarTasks.visibility = View.GONE
                     binding.tvEmptyTasks.visibility = View.VISIBLE

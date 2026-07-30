@@ -71,62 +71,28 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_end_time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:orientation="horizontal">
+        android:background="@drawable/bg_input_field"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
 
-        <LinearLayout
-            android:id="@+id/layout_start_time"
+        <TextView
+            android:id="@+id/tv_end_time"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginEnd="8dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/bg_input_field"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
+            android:text="Time"
+            android:textColor="#999999" />
 
-            <TextView
-                android:id="@+id/tv_start_time"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Start time"
-                android:textColor="#999999" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_clock"
-                app:tint="#999999" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_end_time"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_input_field"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
-
-            <TextView
-                android:id="@+id/tv_end_time"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="End time"
-                android:textColor="#999999" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_clock"
-                app:tint="#999999" />
-        </LinearLayout>
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_clock"
+            app:tint="#999999" />
     </LinearLayout>
 
     <RelativeLayout
@@ -171,14 +137,6 @@
             <!-- Categories will be added here dynamically -->
         </LinearLayout>
     </HorizontalScrollView>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:text="+ Add new"
-        android:textColor="#6B9CFF"
-        android:textSize="14sp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_create_task"

@@ -14,4 +14,11 @@
     <string name="profile_rank">Rank</string>
     <string name="profile_username">\@Username</string>
 
+    <string name="empty_tasks_day">No tasks for this day</string>
+    <string name="mark_as_done">Mark as done</string>
+    <string name="mark_as_pending">Mark as pending</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="no_tasks_recorded">No tasks recorded.</string>
+    <string name="enter_first_tasks">Enter your first tasks!</string>
 </resources>

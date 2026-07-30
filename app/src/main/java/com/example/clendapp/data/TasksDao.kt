@@ -22,9 +22,9 @@ interface TasksDao {
     @Query("SELECT * from tasks WHERE id = :id")
     fun getTask(id: Int): Flow<Tasks?>
 
-    @Query("SELECT * from tasks ORDER BY date ASC, startDate ASC")
-    fun getAllTasks(): Flow<List<Tasks>>
+    @Query("SELECT * from tasks WHERE id_user = :userId ORDER BY date ASC, dueDate ASC")
+    fun getAllTasks(userId: Int): Flow<List<Tasks>>
 
-    @Query("SELECT * FROM tasks WHERE date >= :startOfDay AND date <= :endOfDay ORDER BY startDate ASC")
-    fun getTasksForDate(startOfDay: Long, endOfDay: Long): Flow<List<Tasks>>
+    @Query("SELECT * FROM tasks WHERE id_user = :userId AND date >= :startOfDay AND date <= :endOfDay ORDER BY dueDate ASC")
+    fun getTasksForDate(userId: Int, startOfDay: Long, endOfDay: Long): Flow<List<Tasks>>
 }

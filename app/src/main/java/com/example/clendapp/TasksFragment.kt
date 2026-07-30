@@ -1,5 +1,6 @@
 package com.example.clendapp
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +40,7 @@ class TasksFragment : Fragment() {
         val database = AppDatabase.getDatabase(requireContext())
         tasksAdapter = TasksAdapter(
             onTaskClick = { task ->
-                Toast.makeText(requireContext(), "Tarea: ${task.title}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Task: ${task.title}", Toast.LENGTH_SHORT).show()
             },
             onEditClick = { task ->
                 val editSheet = AddTaskSheetFragment.newEditInstance(task.id)
@@ -48,14 +49,14 @@ class TasksFragment : Fragment() {
             onDeleteClick = { task ->
                 lifecycleScope.launch {
                     database.tasksDao().delete(task)
-                    Toast.makeText(requireContext(), "Tarea eliminada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
             onDoneClick = { task ->
                 lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
-                    val message = if (updatedTask.isCompleted) "Tarea completada" else "Tarea pendiente"
+                    val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -67,9 +68,14 @@ class TasksFragment : Fragment() {
     }
 
     private fun observeTasks() {
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+        
+        if (loggedInUserId == -1) return
+
         val database = AppDatabase.getDatabase(requireContext())
         lifecycleScope.launch {
-            database.tasksDao().getAllTasks().collect { tasks ->
+            database.tasksDao().getAllTasks(loggedInUserId).collect { tasks ->
                 if (tasks.isEmpty()) {
                     binding.rvTasks.visibility = View.GONE
                     binding.layoutEmptyState.visibility = View.VISIBLE

@@ -138,7 +138,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:gravity="center"
-                    android:text="No hay tareas para este día"
+                    android:text="@string/empty_tasks_day"
                     android:textColor="#999999"
                     android:textSize="16sp"
                     android:visibility="gone" />

@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [User::class, Tasks::class, Ranks::class, Categories::class],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,32 +46,32 @@ abstract class AppDatabase : RoomDatabase() {
 
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                Log.d("DB", "onCreate ejecutado")
+                Log.d("DB", "onCreate executed")
                 insertDefaultRanks(db)
                 insertDefaultCategories(db)
             }
 
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
-                Log.d("DB", "onOpen ejecutado")
+                Log.d("DB", "onOpen executed")
                 
-                // Poblar ranks si está vacía
+                // Adding ranks if empty
                 val ranksTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='ranks'").use { it.moveToFirst() }
                 if (ranksTableExists) {
                     val cursor = db.query("SELECT COUNT(*) FROM ranks")
                     if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
-                        Log.d("DB", "Poblando ranks en onOpen")
+                        Log.d("DB", "Adding ranks in onOpen")
                         insertDefaultRanks(db)
                     }
                     cursor.close()
                 }
 
-                // Poblar categories si está vacía
+                // Adding categories if empty
                 val categoriesTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='categories'").use { it.moveToFirst() }
                 if (categoriesTableExists) {
                     val cursor = db.query("SELECT COUNT(*) FROM categories")
                     if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
-                        Log.d("DB", "Poblando categories en onOpen")
+                        Log.d("DB", "Adding categories in onOpen")
                         insertDefaultCategories(db)
                     }
                     cursor.close()
@@ -80,12 +80,12 @@ abstract class AppDatabase : RoomDatabase() {
 
             private fun insertDefaultRanks(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS ranks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL)")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Papita')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Cerebrito')")
+                db.execSQL("INSERT INTO ranks (name) VALUES ('Potato')")
+                db.execSQL("INSERT INTO ranks (name) VALUES ('Brainiac')")
                 db.execSQL("INSERT INTO ranks (name) VALUES ('Nerd')")
                 db.execSQL("INSERT INTO ranks (name) VALUES ('Master')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Dios')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Diavlo')")
+                db.execSQL("INSERT INTO ranks (name) VALUES ('God')")
+                db.execSQL("INSERT INTO ranks (name) VALUES ('Devil')")
                 db.execSQL("INSERT INTO ranks (name) VALUES ('Top Global')")
             }
 
