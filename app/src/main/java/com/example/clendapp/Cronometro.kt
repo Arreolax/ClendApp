@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class Cronometro : AppCompatActivity() {
 
@@ -26,7 +27,7 @@ class Cronometro : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0) // No padding bottom because of NavView
             insets
         }
 
@@ -106,6 +107,35 @@ class Cronometro : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_volver).setOnClickListener {
             finish()
+        }
+
+        setupBottomNavigation()
+    }
+
+    private fun setupBottomNavigation() {
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigation.selectedItemId = R.id.nav_history
+
+        bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_history -> true
+                R.id.nav_menu -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("OPEN_DRAWER", true)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    finish()
+                    false
+                }
+                else -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.putExtra("NAV_DESTINATION", item.itemId)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+            }
         }
     }
 

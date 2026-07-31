@@ -11,14 +11,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.graphics.Color
-import android.view.Gravity
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.content.res.ResourcesCompat
+import kotlin.toString
 
 class HacerNota : AppCompatActivity() {
 
@@ -27,7 +26,7 @@ class HacerNota : AppCompatActivity() {
     private lateinit var tvContador: TextView
     private lateinit var btnListMode: TextView
     private lateinit var cardCuerpo: View
-    
+
     private var currentNote: Note? = null
     private var isListMode = false
 
@@ -80,7 +79,7 @@ class HacerNota : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (isInternalChange) return
                 updateContador()
-                
+
                 if (isListMode && count == 1 && s?.get(start) == '\n') {
                     isInternalChange = true
                     val currentText = etCuerpo.text.toString()
@@ -105,7 +104,7 @@ class HacerNota : AppCompatActivity() {
             btnListMode.text = "★ List Mode: ON"
             btnListMode.setTextColor(Color.parseColor("#7A4A00"))
             etCuerpo.setTextColor(Color.BLACK)
-            
+
             // If starting a new list, add first star
             if (etCuerpo.text.isEmpty()) {
                 etCuerpo.setText("★ ")
@@ -124,11 +123,28 @@ class HacerNota : AppCompatActivity() {
     }
 
     private fun handleSave() {
+        val title = etTitulo.text.toString().trim()
+        val content = etCuerpo.text.toString().trim()
+
         if (currentNote != null) {
+            // Existing notes: Save automatically
             saveNote(currentNote!!.folder)
             finish()
         } else {
-            showSaveModal()
+            // New notes: Only prompt if BOTH are filled (per user request)
+            val contentValue = if (isListMode && content.startsWith("★")) {
+                content.replace("★", "").trim()
+            } else {
+                content
+            }
+
+            if (title.isNotEmpty() && contentValue.isNotEmpty()) {
+                // If both are filled, ask where to save
+                showSaveModal()
+            } else {
+                // If either is empty, just close and don't save
+                finish()
+            }
         }
     }
 
@@ -139,7 +155,6 @@ class HacerNota : AppCompatActivity() {
             .create()
 
         val container = dialogView.findViewById<LinearLayout>(R.id.container_modal_carpetas)
-        val typeface = ResourcesCompat.getFont(this, R.font.hey_comic)
         var selectedFolder = "Personal"
 
         fun refreshFolders() {
@@ -148,8 +163,7 @@ class HacerNota : AppCompatActivity() {
             folders.forEach { folderName ->
                 val tv = TextView(this).apply {
                     text = folderName
-                    this.typeface = typeface
-                    gravity = Gravity.CENTER
+                    gravity = android.view.Gravity.CENTER
                     textSize = 14f
                     setPadding(0, 30, 0, 30)
                     val lp = LinearLayout.LayoutParams(
@@ -157,7 +171,7 @@ class HacerNota : AppCompatActivity() {
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     ).apply { setMargins(0, 10, 0, 10) }
                     layoutParams = lp
-                    
+
                     if (folderName == selectedFolder) {
                         setBackgroundResource(R.drawable.bg_pill_categoria_selected)
                         setTextColor(Color.WHITE)

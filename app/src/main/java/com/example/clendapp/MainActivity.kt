@@ -43,6 +43,11 @@ class MainActivity : AppCompatActivity() {
                     binding.drawerLayout.openDrawer(GravityCompat.END)
                     false
                 }
+                R.id.nav_history -> {
+                    val intent = Intent(this, Cronometro::class.java)
+                    startActivity(intent)
+                    true
+                }
                 else -> {
                     // Usar NavigationUI para manejar el resto de los items (Home, Calendar, etc.)
                     // Esto asegura que la navegación sea consistente con setupWithNavController
