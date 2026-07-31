@@ -13,5 +13,6 @@ data class Tasks(
     val date: Long,
     val dueDate: Long,
     val repeat: Boolean = false,
+    val late: Boolean = false,
     val id_user: Int
 )

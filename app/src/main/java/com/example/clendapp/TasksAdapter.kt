@@ -78,7 +78,23 @@ class TasksAdapter(
 
     inner class TaskViewHolder(private val binding: ItemTaskCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(task: Tasks) {
+            val isLate = task.late && !task.isCompleted
+            
+            // Title
             binding.tvTaskTitle.text = task.title
+            binding.tvTaskTitle.setTextColor(android.graphics.Color.parseColor("#2A2A2A"))
+
+            // Red border and time if late
+            if (isLate) {
+                binding.root.setBackgroundResource(R.drawable.bg_section_outline_late)
+                binding.tvTaskTime.setTextColor(android.graphics.Color.RED)
+                binding.ivLateIndicator.visibility = android.view.View.VISIBLE
+            } else {
+                binding.root.setBackgroundResource(R.drawable.bg_section_outline)
+                binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#999999"))
+                binding.ivLateIndicator.visibility = android.view.View.GONE
+            }
+
             binding.tvTaskDescription.text = task.description ?: ""
             
             // Get category name

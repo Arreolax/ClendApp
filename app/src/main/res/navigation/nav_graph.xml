@@ -25,10 +25,10 @@
         android:label="Notes"
         tools:layout="@layout/misnotas" />
 
-    <activity
+    <fragment
         android:id="@+id/nav_history"
-        android:name="com.example.clendapp.Cronometro"
+        android:name="com.example.clendapp.CronometroFragment"
         android:label="Cronometro"
-        tools:layout="@layout/activity_cronometro" />
+        tools:layout="@layout/fragment_cronometro" />
 
 </navigation>

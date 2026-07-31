@@ -52,8 +52,6 @@ class InicioFragment : Fragment() {
     private fun setupRecyclerView() {
         remindersAdapter = ReminderAdapter(
             onTaskClick = { _ ->
-                // Simulate clicking the "Tasks" tab in bottom navigation
-                // This ensures correct back stack behavior and UI sync
                 activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.selectedItemId = R.id.nav_check
             }
         )
@@ -73,8 +71,11 @@ class InicioFragment : Fragment() {
         val endOfDay = today.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val database = AppDatabase.getDatabase(requireContext())
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            database.tasksDao().updateLateTasks(System.currentTimeMillis())
+
             database.tasksDao().getTasksForDate(loggedInUserId, startOfDay, endOfDay).collect { tasks ->
+                if (_binding == null) return@collect
                 val pendingTasks = tasks.filter { !it.isCompleted }
                 if (pendingTasks.isEmpty()) {
                     binding.rvReminders.visibility = View.GONE
@@ -107,24 +108,22 @@ class InicioFragment : Fragment() {
         
         val dayFormat = SimpleDateFormat("EE", Locale.getDefault())
         
-        // Use a copy to calculate the start and end dates for fetching tasks
         val rangeCalendar = calendar.clone() as Calendar
         rangeCalendar.add(Calendar.DAY_OF_YEAR, -3)
         val startDateMillis = rangeCalendar.timeInMillis
-        rangeCalendar.add(Calendar.DAY_OF_YEAR, 6) // Total 7 days
+        rangeCalendar.add(Calendar.DAY_OF_YEAR, 6)
         val endDateMillis = rangeCalendar.timeInMillis
 
-        // First, draw the calendar with base info
         drawCalendarBase(currentDayOfYear, currentYear, dayFormat)
 
-        // Then, fetch and update dots asynchronously
         val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val loggedInUserId = sharedPref.getInt("user_id", -1)
 
         if (loggedInUserId != -1) {
             val database = AppDatabase.getDatabase(requireContext())
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 database.tasksDao().getTasksForDate(loggedInUserId, startDateMillis, endDateMillis).collect { tasks ->
+                    if (_binding == null) return@collect
                     val tasksByDate = tasks.groupBy { 
                         java.time.Instant.ofEpochMilli(it.date).atZone(ZoneId.systemDefault()).toLocalDate()
                     }
@@ -137,6 +136,8 @@ class InicioFragment : Fragment() {
     private fun drawCalendarBase(currentDayOfYear: Int, currentYear: Int, dayFormat: SimpleDateFormat) {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -3)
+        
+        if (_binding == null) return
         
         for (i in 0 until binding.calendarRow.childCount) {
             val dayContainer = binding.calendarRow.getChildAt(i) as? LinearLayout
@@ -178,6 +179,8 @@ class InicioFragment : Fragment() {
     }
 
     private fun updateCalendarDots(tasksByDate: Map<LocalDate, List<Tasks>>) {
+        if (_binding == null || context == null) return
+        
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -3)
         
@@ -192,7 +195,7 @@ class InicioFragment : Fragment() {
             val dotCount = tasksForDay.size.coerceAtMost(3)
             
             for (j in 0 until dotCount) {
-                val dot = View(requireContext())
+                val dot = View(context)
                 val dotSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
                 val dotParams = LinearLayout.LayoutParams(dotSize, dotSize)
                 dotParams.setMargins(2, 0, 2, 0)

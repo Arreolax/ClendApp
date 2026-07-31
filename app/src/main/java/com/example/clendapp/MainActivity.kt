@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         database = AppDatabase.getDatabase(this)
         loadUserData()
+        updateLateTasksStatus()
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -42,11 +43,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_menu -> {
                     binding.drawerLayout.openDrawer(GravityCompat.END)
                     false
-                }
-                R.id.nav_history -> {
-                    val intent = Intent(this, Cronometro::class.java)
-                    startActivity(intent)
-                    true
                 }
                 else -> {
                     // Usar NavigationUI para manejar el resto de los items (Home, Calendar, etc.)
@@ -93,6 +89,12 @@ class MainActivity : AppCompatActivity() {
                     binding.navHeader.tvHeaderUsername.text = "@${it.username}"
                 }
             }
+        }
+    }
+
+    private fun updateLateTasksStatus() {
+        lifecycleScope.launch {
+            database.tasksDao().updateLateTasks(System.currentTimeMillis())
         }
     }
 

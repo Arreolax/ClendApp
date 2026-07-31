@@ -94,8 +94,9 @@ class CalendarFragment : Fragment() {
         val endMillis = endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val database = AppDatabase.getDatabase(requireContext())
-        monthTasksJob = lifecycleScope.launch {
+        monthTasksJob = viewLifecycleOwner.lifecycleScope.launch {
             database.tasksDao().getTasksForDate(loggedInUserId, startMillis, endMillis).collect { tasks ->
+                if (_binding == null) return@collect
                 tasksByDate = tasks.groupBy { 
                     java.time.Instant.ofEpochMilli(it.date).atZone(ZoneId.systemDefault()).toLocalDate()
                 }
@@ -116,13 +117,13 @@ class CalendarFragment : Fragment() {
                 editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
             },
             onDeleteClick = { task ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     database.tasksDao().delete(task)
                     Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
             onDoneClick = { task ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
                     val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
@@ -147,8 +148,12 @@ class CalendarFragment : Fragment() {
         val endOfDay = selectedDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val database = AppDatabase.getDatabase(requireContext())
-        tasksJob = lifecycleScope.launch {
+        tasksJob = viewLifecycleOwner.lifecycleScope.launch {
+            // Update late status
+            database.tasksDao().updateLateTasks(System.currentTimeMillis())
+
             database.tasksDao().getTasksForDate(loggedInUserId, startOfDay, endOfDay).collect { tasks ->
+                if (_binding == null) return@collect
                 if (tasks.isEmpty()) {
                     binding.rvCalendarTasks.visibility = View.GONE
                     binding.tvEmptyTasks.visibility = View.VISIBLE
@@ -170,6 +175,9 @@ class CalendarFragment : Fragment() {
     }
 
     private fun setMonthView() {
+        val currentContext = context ?: return
+        if (_binding == null) return
+        
         binding.tvMonth.text = displayedMonthDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
         binding.tvYear.text = displayedMonthDate.year.toString()
 
@@ -185,7 +193,7 @@ class CalendarFragment : Fragment() {
         val dayOfWeek = firstOfMonth.dayOfWeek.value - 1 
         
         val today = LocalDate.now()
-        val inflater = LayoutInflater.from(requireContext())
+        val inflater = LayoutInflater.from(currentContext)
 
         for (i in 0 until 42) {
             val dayText = daysInMonth[i]
@@ -233,7 +241,7 @@ class CalendarFragment : Fragment() {
             val dotCount = tasksForDay.size.coerceAtMost(3)
             
             for (j in 0 until dotCount) {
-                val dot = View(requireContext())
+                val dot = View(currentContext)
                 val dotSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
                 val dotParams = android.widget.LinearLayout.LayoutParams(dotSize, dotSize)
                 dotParams.setMargins(2, 0, 2, 0)

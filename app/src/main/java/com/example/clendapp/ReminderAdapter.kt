@@ -32,7 +32,21 @@ class ReminderAdapter(
 
     inner class ReminderViewHolder(private val binding: ItemReminderCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(task: Tasks) {
+            // Title
             binding.tvReminderTitle.text = task.title
+            binding.tvReminderTitle.setTextColor(android.graphics.Color.WHITE)
+
+            // Red border and time if late
+            if (task.late) {
+                binding.root.setBackgroundResource(R.drawable.bg_blue_card_late)
+                binding.tvReminderTime.setTextColor(android.graphics.Color.RED)
+                binding.ivLateIndicator.visibility = android.view.View.VISIBLE
+            } else {
+                binding.root.setBackgroundResource(R.drawable.bg_blue_card)
+                binding.tvReminderTime.setTextColor(android.graphics.Color.WHITE)
+                binding.ivLateIndicator.visibility = android.view.View.GONE
+            }
+
             binding.tvReminderDescription.text = task.description ?: ""
             
             val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())

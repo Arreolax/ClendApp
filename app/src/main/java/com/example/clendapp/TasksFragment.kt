@@ -47,13 +47,13 @@ class TasksFragment : Fragment() {
                 editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
             },
             onDeleteClick = { task ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     database.tasksDao().delete(task)
                     Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
             onDoneClick = { task ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
                     val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
@@ -74,8 +74,12 @@ class TasksFragment : Fragment() {
         if (loggedInUserId == -1) return
 
         val database = AppDatabase.getDatabase(requireContext())
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Update late status
+            database.tasksDao().updateLateTasks(System.currentTimeMillis())
+
             database.tasksDao().getAllTasks(loggedInUserId).collect { tasks ->
+                if (_binding == null) return@collect
                 if (tasks.isEmpty()) {
                     binding.rvTasks.visibility = View.GONE
                     binding.layoutEmptyState.visibility = View.VISIBLE

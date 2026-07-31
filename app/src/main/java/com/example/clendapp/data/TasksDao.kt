@@ -27,4 +27,7 @@ interface TasksDao {
 
     @Query("SELECT * FROM tasks WHERE id_user = :userId AND date >= :startOfDay AND date <= :endOfDay ORDER BY dueDate ASC")
     fun getTasksForDate(userId: Int, startOfDay: Long, endOfDay: Long): Flow<List<Tasks>>
+
+    @Query("UPDATE tasks SET late = 1 WHERE dueDate < :currentTime AND isCompleted = 0")
+    suspend fun updateLateTasks(currentTime: Long)
 }
