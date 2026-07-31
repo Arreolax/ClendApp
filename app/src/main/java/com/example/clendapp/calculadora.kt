@@ -1,10 +1,16 @@
 package com.example.clendapp
 
+import android.content.Context
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,6 +21,8 @@ class calculadora : AppCompatActivity() {
     private lateinit var tvOperacion: TextView
     private lateinit var tvResultado: TextView
     private lateinit var btnJuego: TextView
+    private lateinit var tvScore: TextView
+    private lateinit var tvTimer: TextView
 
     private var actualExpression = ""
     private var lastWasOperator = false
@@ -22,7 +30,9 @@ class calculadora : AppCompatActivity() {
     // Variables del juego
     private var isGameMode = false
     private var score = 0
+    private var bestScore = 0
     private var targetResult = 0.0
+    private var countDownTimer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +48,22 @@ class calculadora : AppCompatActivity() {
         tvOperacion = findViewById(R.id.tv_operacion)
         tvResultado = findViewById(R.id.tv_resultado)
         btnJuego = findViewById(R.id.btn_juego)
+        tvScore = findViewById(R.id.tv_score)
+        tvTimer = findViewById(R.id.tv_timer)
 
         tvOperacion.text = ""
         tvResultado.text = "0"
 
+        // Cargar mejor puntaje
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        bestScore = sharedPref.getInt("best_score_calc", 0)
+
         btnJuego.setOnClickListener {
-            toggleGameMode()
+            if (isGameMode) {
+                showExitConfirmation()
+            } else {
+                toggleGameMode()
+            }
         }
 
         setupButtons()
@@ -53,23 +73,69 @@ class calculadora : AppCompatActivity() {
         isGameMode = !isGameMode
         if (isGameMode) {
             score = 0
-            btnJuego.text = "Score: $score (Quit)"
+            btnJuego.text = "Quit"
             btnJuego.setBackgroundResource(R.drawable.bg_tecla_igual) // Color distintivo
+            tvScore.text = "Score: $score"
+            tvScore.visibility = View.VISIBLE
+            tvTimer.visibility = View.VISIBLE
             nextQuestion()
-            Toast.makeText(this, "Game Mode: Solve the operations!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Game Mode: 7 seconds per question!", Toast.LENGTH_SHORT).show()
         } else {
-            btnJuego.text = "Game"
-            btnJuego.setBackgroundResource(R.drawable.bg_boton_juego)
-            actualExpression = ""
-            tvOperacion.text = ""
-            tvResultado.text = "0"
-            Toast.makeText(this, "Calculator Mode", Toast.LENGTH_SHORT).show()
+            stopGame()
+        }
+    }
+
+    private fun stopGame() {
+        countDownTimer?.cancel()
+        isGameMode = false
+        btnJuego.text = "Game"
+        btnJuego.setBackgroundResource(R.drawable.bg_boton_juego)
+        tvScore.visibility = View.GONE
+        tvTimer.visibility = View.GONE
+        actualExpression = ""
+        tvOperacion.text = ""
+        tvResultado.text = "0"
+    }
+
+    private fun startTimer() {
+        countDownTimer?.cancel()
+        countDownTimer = object : CountDownTimer(7000, 100) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = (millisUntilFinished / 1000.0).toInt() + 1
+                tvTimer.text = "${secondsLeft}s"
+            }
+
+            override fun onFinish() {
+                tvTimer.text = "0s"
+                handleTimeout()
+            }
+        }.start()
+    }
+
+    private fun handleTimeout() {
+        showStatusModal("Time's up!", "Time is over, your score is: $score") {
+            updateBestScore()
+            score = 0
+            tvScore.text = "Score: $score"
+            nextQuestion()
+        }
+    }
+
+    private fun updateBestScore() {
+        if (score > bestScore) {
+            bestScore = score
+            val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+            with(sharedPref.edit()) {
+                putInt("best_score_calc", bestScore)
+                apply()
+            }
         }
     }
 
     private fun nextQuestion() {
         actualExpression = ""
         tvResultado.text = "0"
+        startTimer()
 
         // Aumentar dificultad basada en score
         val range = 10 + (score * 5)
@@ -112,20 +178,106 @@ class calculadora : AppCompatActivity() {
 
         try {
             val userResult = actualExpression.replace(",", ".").toDouble()
+            countDownTimer?.cancel()
+            
             if (userResult == targetResult) {
                 score++
-                btnJuego.text = "Score: $score (Quit)"
-                Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
-                nextQuestion()
+                tvScore.text = "Score: $score"
+                showStatusModal("Correct!", "Correct, your score is: $score") {
+                    nextQuestion()
+                }
             } else {
-                Toast.makeText(this, "Incorrect. It was ${targetResult.toInt()}. Score reset.", Toast.LENGTH_LONG).show()
-                score = 0
-                btnJuego.text = "Score: $score (Quit)"
-                nextQuestion()
+                showStatusModal("Incorrect", "Incorrect, your score is: $score") {
+                    updateBestScore()
+                    score = 0
+                    tvScore.text = "Score: $score"
+                    nextQuestion()
+                }
             }
         } catch (e: Exception) {
             Toast.makeText(this, "Enter a valid number", Toast.LENGTH_SHORT).show()
+            startTimer()
         }
+    }
+
+    private fun showStatusModal(title: String, message: String, onAccept: () -> Unit) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = title
+        dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = message
+        
+        dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
+            dialog.dismiss()
+            onAccept()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun showExitConfirmation() {
+        countDownTimer?.cancel()
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Exit Game"
+        dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Are you sure you want to quit the game?"
+        
+        val btnAccept = dialogView.findViewById<TextView>(R.id.btn_dialog_accept)
+        val btnCancel = dialogView.findViewById<TextView>(R.id.btn_dialog_cancel)
+        
+        btnAccept.text = "Exit"
+        btnCancel.text = "Keep Playing"
+        btnCancel.visibility = View.VISIBLE
+
+        btnAccept.setOnClickListener {
+            dialog.dismiss()
+            updateBestScore()
+            showGoodbyeModal()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+            startTimer()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun showGoodbyeModal() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Goodbye!"
+        dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Thanks for playing!\nYour best score is: $bestScore"
+        
+        dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
+            dialog.dismiss()
+            stopGame()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun setupButtons() {
@@ -169,7 +321,6 @@ class calculadora : AppCompatActivity() {
                         lastWasOperator = true
                     }
                 } else {
-                    // Permitir signo negativo al inicio en el juego
                     if (symbol == "-" && actualExpression.isEmpty()) {
                         actualExpression = "-"
                         tvResultado.text = actualExpression
@@ -196,7 +347,11 @@ class calculadora : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.btn_back).setOnClickListener {
-            finish()
+            if (isGameMode) {
+                showExitConfirmation()
+            } else {
+                finish()
+            }
         }
 
         findViewById<Button>(R.id.btn_mas_menos)?.setOnClickListener {
@@ -226,6 +381,11 @@ class calculadora : AppCompatActivity() {
         } catch (e: Exception) {
             tvResultado.text = "Error"
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        countDownTimer?.cancel()
     }
 
     private fun eval(str: String): Double {

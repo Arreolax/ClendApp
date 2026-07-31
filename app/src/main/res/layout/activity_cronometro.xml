@@ -5,30 +5,66 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#6b61ff"
+    android:background="#F0EFF4"
     tools:context=".Cronometro">
+
+    <TextView
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="‹"
+        android:textColor="#6C63FF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_titulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:fontFamily="@font/hey_comic"
+        android:text="Study Timer"
+        android:textColor="#6C63FF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+        app:layout_constraintStart_toEndOf="@+id/btn_back"
+        app:layout_constraintTop_toTopOf="@+id/btn_back" />
+
+    <View
+        android:id="@+id/underline_titulo"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="2dp"
+        android:background="#66A1FF"
+        app:layout_constraintEnd_toEndOf="@+id/tv_titulo"
+        app:layout_constraintStart_toStartOf="@+id/tv_titulo"
+        app:layout_constraintTop_toBottomOf="@+id/tv_titulo" />
 
     <TextView
         android:id="@+id/tv_desc_top"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:gravity="center"
-        android:fontFamily="@font/hey_comic"
         android:text="Work as long as needed with full concentration and then take a short break. Repeat this cycle to maintain your energy."
-        android:textColor="#E0DEFA"
-        android:textSize="15sp"
+        android:textColor="#6B6B76"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/underline_titulo" />
 
     <View
         android:id="@+id/circle_decor"
-        android:layout_width="358dp"
-        android:layout_height="313dp"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/circle_decor"
         app:layout_constraintEnd_toEndOf="parent"
@@ -58,9 +94,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="^"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -68,9 +103,8 @@
                 android:id="@+id/tv_hh"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/hey_comic"
                 android:text="00"
-                android:textColor="@android:color/white"
+                android:textColor="#1A1A2E"
                 android:textSize="42sp"
                 android:textStyle="bold" />
 
@@ -79,9 +113,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="v"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -91,9 +124,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:fontFamily="@font/hey_comic"
             android:text=":"
-            android:textColor="@android:color/white"
+            android:textColor="#1A1A2E"
             android:textSize="42sp"
             android:textStyle="bold" />
 
@@ -109,9 +141,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="^"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -119,9 +150,8 @@
                 android:id="@+id/tv_mm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/hey_comic"
                 android:text="25"
-                android:textColor="@android:color/white"
+                android:textColor="#1A1A2E"
                 android:textSize="42sp"
                 android:textStyle="bold" />
 
@@ -130,9 +160,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="v"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -142,9 +171,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:fontFamily="@font/hey_comic"
             android:text=":"
-            android:textColor="@android:color/white"
+            android:textColor="#1A1A2E"
             android:textSize="42sp"
             android:textStyle="bold" />
 
@@ -160,9 +188,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="^"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -170,9 +197,8 @@
                 android:id="@+id/tv_ss"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/hey_comic"
                 android:text="00"
-                android:textColor="@android:color/white"
+                android:textColor="#1A1A2E"
                 android:textSize="42sp"
                 android:textStyle="bold" />
 
@@ -181,15 +207,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:fontFamily="@font/hey_comic"
                 android:text="v"
-                android:textColor="#B7B2F2"
+                android:textColor="#9A93F0"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Botones 30m / 60m / 90m -->
+    <!-- Botones 20m / 60m / 90m -->
     <LinearLayout
         android:id="@+id/ll_presets"
         android:layout_width="wrap_content"
@@ -206,9 +231,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
             android:background="@drawable/bg_pill"
+            app:backgroundTint="@null"
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
-            android:fontFamily="@font/hey_comic"
             android:text="20m"
             android:textColor="@android:color/white"
             android:textAllCaps="false" />
@@ -219,9 +244,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
             android:background="@drawable/bg_pill"
+            app:backgroundTint="@null"
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
-            android:fontFamily="@font/hey_comic"
             android:text="60m"
             android:textColor="@android:color/white"
             android:textAllCaps="false" />
@@ -232,15 +257,14 @@
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
             android:background="@drawable/bg_pill"
+            app:backgroundTint="@null"
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
-            android:fontFamily="@font/hey_comic"
             android:text="90m"
             android:textColor="@android:color/white"
             android:textAllCaps="false" />
     </LinearLayout>
 
-    <!-- Texto descriptivo inferior -->
     <TextView
         android:id="@+id/tv_desc_bottom"
         android:layout_width="0dp"
@@ -249,15 +273,14 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:gravity="center"
-        android:fontFamily="@font/hey_comic"
         android:text="When starting your study time, you will not be able to edit or control anything until it finishes."
-        android:textColor="#E0DEFA"
-        android:textSize="15sp"
+        android:textColor="#6B6B76"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ll_presets" />
 
-    <!-- Boton grande Comenzar / Pausar / Reiniciar -->
+    <!-- Boton grande Start / Pausar / Reiniciar -->
     <Button
         android:id="@+id/btn_start"
         android:layout_width="0dp"
@@ -265,15 +288,15 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="28dp"
         android:background="@drawable/bg_button_comenzar"
-        android:fontFamily="@font/hey_comic"
+        app:backgroundTint="@null"
         android:text="Start  →"
         android:textAllCaps="false"
-        android:textColor="@color/white"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btn_volver"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_desc_bottom" />
@@ -284,7 +307,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:fontFamily="@font/hey_comic"
         android:text="Pause" />
 
     <Button
@@ -292,21 +314,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:fontFamily="@font/hey_comic"
         android:text="Reset" />
 
     <Button
         android:id="@+id/btn_volver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:background="@android:color/transparent"
-        android:fontFamily="@font/hey_comic"
+        android:visibility="gone"
         android:text="Back"
-        android:textColor="#E0DEFA"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="#6C63FF" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,7 +51,6 @@
             android:id="@+id/tv_operacion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/hey_comic"
             android:text="50+50+20-10-10"
             android:textColor="#9A9AA5"
             android:textSize="16sp"
@@ -62,7 +61,6 @@
             android:id="@+id/tv_resultado"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/hey_comic"
             android:text="100"
             android:textColor="#1A1A2E"
             android:textSize="44sp"
@@ -72,23 +70,64 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Pastilla "Juego" -->
-    <TextView
-        android:id="@+id/btn_juego"
-        android:layout_width="wrap_content"
+    <!-- Pastilla "Juego" y Contadores -->
+    <LinearLayout
+        android:id="@+id/ll_game_info"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:background="@drawable/bg_boton_juego"
-        android:fontFamily="@font/hey_comic"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:text="Game"
-        android:textColor="@android:color/white"
-        android:textSize="14sp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/display_card" />
+        app:layout_constraintTop_toBottomOf="@+id/display_card">
+
+        <TextView
+            android:id="@+id/btn_juego"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_boton_juego"
+            android:fontFamily="@font/hey_comic"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="Game"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/hey_comic"
+            android:text="Score: 0"
+            android:textColor="#1A1A2E"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_naranja"
+            android:fontFamily="@font/hey_comic"
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="7s"
+            android:textColor="#7A4A00"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <!-- Teclado -->
     <GridLayout
@@ -102,7 +141,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_juego"
+        app:layout_constraintTop_toBottomOf="@+id/ll_game_info"
         app:layout_constraintVertical_bias="0.0">
 
         <!-- Fila 1 -->
