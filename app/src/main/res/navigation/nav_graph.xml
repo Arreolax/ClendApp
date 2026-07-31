@@ -12,6 +12,13 @@
         android:id="@+id/nav_calendar"
         android:name="com.example.clendapp.CalendarFragment"
         android:label="Calendario" />
+
+    <fragment
+        android:id="@+id/nav_check"
+        android:name="com.example.clendapp.TasksFragment"
+        android:label="Tasks"
+        tools:layout="@layout/fragment_tasks" />
+
     <activity
         android:id="@+id/nav_notes"
         android:name="com.example.clendapp.MisNotas"
