@@ -41,6 +41,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="30" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mo" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -51,6 +52,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="31" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tu" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -61,6 +63,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wed" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -72,6 +75,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2" android:textSize="22sp" android:textStyle="bold" android:textColor="#6B9CFF"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Th" android:textSize="14sp" android:textColor="#6B9CFF"/>
+                <LinearLayout android:id="@+id/dots_4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -82,6 +86,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fr" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -92,6 +97,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sa" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_6" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
             <LinearLayout
@@ -102,6 +108,7 @@
                 android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5" android:textSize="18sp" android:textStyle="bold" android:textColor="#2A2A2A"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Su" android:textSize="12sp" android:textColor="#999999"/>
+                <LinearLayout android:id="@+id/dots_7" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="2dp" android:gravity="center"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -193,81 +200,31 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_reminder_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dont forget schedule for tomorrow"
+                android:text="Don\'t forget schedule for today"
                 android:textColor="#999999"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif-light"
                 android:textStyle="italic"
                 android:layout_marginBottom="16dp" />
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_reminders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_blue_card"
-                android:padding="12dp"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:nestedScrollingEnabled="false" />
 
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_light_blue"
-                    android:padding="8dp">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_calendar"
-                        android:contentDescription="@string/menu_premium"
-                        app:tint="#FFFFFF" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Urus SIM di samsat Klayatan" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="15sp"/>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_clock" android:contentDescription="@string/menu_logout" app:tint="#FFFFFF"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12.00 - 16.00" android:textColor="#FFFFFF" android:textSize="13sp" android:layout_marginStart="6dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/tv_empty_reminders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_blue_card"
-                android:padding="12dp"
-                android:gravity="center_vertical">
-
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_light_blue"
-                    android:padding="8dp">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_calendar"
-                        android:contentDescription="@string/menu_premium"
-                        app:tint="#FFFFFF" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Urus SIM di samsat Klayatan" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="15sp"/>
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_clock" android:contentDescription="@string/menu_logout" app:tint="#FFFFFF"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12.00 - 16.00" android:textColor="#FFFFFF" android:textSize="13sp" android:layout_marginStart="6dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="No pending tasks for today"
+                android:textColor="#999999"
+                android:visibility="gone" />
 
         </LinearLayout>
 

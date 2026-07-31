@@ -4,10 +4,12 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Scores
 import com.example.clendapp.data.User
 import com.example.clendapp.databinding.ActivityRegisterBinding
 import kotlinx.coroutines.launch
@@ -36,11 +38,22 @@ class RegisterActivity : AppCompatActivity() {
 
         binding.ivShowPassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
+            
+            // Animation for the icon
+            binding.ivShowPassword.animate()
+                .rotation(if (isPasswordVisible) 180f else 0f)
+                .scaleX(if (isPasswordVisible) 1.2f else 1.0f)
+                .scaleY(if (isPasswordVisible) 1.2f else 1.0f)
+                .setDuration(300)
+                .start()
+
             if (isPasswordVisible) {
                 binding.etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                binding.ivShowPassword.setImageResource(R.drawable.ic_visibility)
                 binding.ivShowPassword.alpha = 1.0f
             } else {
                 binding.etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                binding.ivShowPassword.setImageResource(R.drawable.ic_visibility_off)
                 binding.ivShowPassword.alpha = 0.5f
             }
             binding.etPassword.setSelection(binding.etPassword.text.length)
@@ -68,6 +81,16 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (phone.isNotEmpty() && phone.length != 10) {
+            Toast.makeText(this, "Phone number must be 10 digits", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch {
             val existingUser = database.userDao().getUserByEmail(email)
             if (existingUser != null) {
@@ -82,6 +105,10 @@ class RegisterActivity : AppCompatActivity() {
                     password = password
                 )
                 val userId = database.userDao().insertUser(newUser)
+
+                // Crear entrada inicial de puntuación y rango
+                val initialScores = Scores(id_user = userId.toInt())
+                database.scoresDao().insertScores(initialScores)
 
                 // Guardar el ID del usuario en SharedPreferences para inicio automático
                 val sharedPref = getSharedPreferences("clend_app_prefs", MODE_PRIVATE)

@@ -12,5 +12,5 @@ data class User(
     val birthDate: String,
     val phone: String,
     val password: String,
-    val id_rank: Int = 1
+    val premium: Boolean = false
 )

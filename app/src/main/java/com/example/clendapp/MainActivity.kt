@@ -3,6 +3,7 @@ package com.example.clendapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -12,6 +13,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
                     false
                 }
                 else -> {
+                    // Usar NavigationUI para manejar el resto de los items (Home, Calendar, etc.)
+                    // Esto asegura que la navegación sea consistente con setupWithNavController
                     NavigationUI.onNavDestinationSelected(item, navController)
                 }
             }
@@ -50,15 +54,20 @@ class MainActivity : AppCompatActivity() {
         // Configurar clics de los botones del menú lateral personalizado
         setupDrawerButtons()
 
-        // Manejar el botón atrás para cerrar el menú si está abierto
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        // Manejar el botón atrás de forma moderna
+        val callback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                    binding.drawerLayout.closeDrawer(GravityCompat.END)
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
-                }
+                binding.drawerLayout.closeDrawer(GravityCompat.END)
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback)
+
+        binding.drawerLayout.addDrawerListener(object : androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerOpened(drawerView: View) {
+                callback.isEnabled = true
+            }
+            override fun onDrawerClosed(drawerView: View) {
+                callback.isEnabled = false
             }
         })
     }
@@ -71,7 +80,9 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = database.userDao().getUserById(userId)
                 user?.let {
-                    val rank = database.ranksDao().getRankById(it.id_rank)
+                    val scores = database.scoresDao().getScoresByUserId(userId)
+                    val rankId = scores?.id_rank ?: 1
+                    val rank = database.ranksDao().getRankById(rankId)
                     binding.navHeader.tvHeaderName.text = it.fullName
                     binding.navHeader.tvHeaderRank.text = "Rank: ${rank?.name ?: "Unknown"}"
                     binding.navHeader.tvHeaderUsername.text = "@${it.username}"

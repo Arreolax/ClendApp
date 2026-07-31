@@ -3,9 +3,14 @@ package com.example.clendapp
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.ItemDateHeaderBinding
 import com.example.clendapp.databinding.ItemTaskCardBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -75,6 +80,15 @@ class TasksAdapter(
         fun bind(task: Tasks) {
             binding.tvTaskTitle.text = task.title
             binding.tvTaskDescription.text = task.description ?: ""
+            
+            // Get category name
+            CoroutineScope(Dispatchers.IO).launch {
+                val db = AppDatabase.getDatabase(binding.root.context)
+                val category = db.categoriesDao().getCategoryById(task.id_category)
+                withContext(Dispatchers.Main) {
+                    binding.tvTaskCategory.text = category?.name ?: "Other"
+                }
+            }
             
             // Tachado si está completada
             if (task.isCompleted) {

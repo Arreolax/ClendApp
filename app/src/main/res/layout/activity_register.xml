@@ -123,8 +123,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="(123) 456-7890"
+                android:hint="1234567890"
                 android:inputType="phone"
+                android:maxLength="10"
+                android:digits="0123456789"
                 android:paddingHorizontal="20dp"
                 android:textColor="#2A2A2A"
                 android:textSize="15sp" />

@@ -8,8 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [User::class, Tasks::class, Ranks::class, Categories::class],
-    version = 14,
+    entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class],
+    version = 15,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -18,6 +18,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tasksDao(): TasksDao
     abstract fun ranksDao(): RanksDao
     abstract fun categoriesDao(): CategoriesDao
+    abstract fun scoresDao(): ScoresDao
 
     companion object {
 
@@ -93,9 +94,9 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL)")
                 db.execSQL("INSERT INTO categories (name) VALUES ('Work')")
                 db.execSQL("INSERT INTO categories (name) VALUES ('Personal')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Others')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Study')")
                 db.execSQL("INSERT INTO categories (name) VALUES ('Health')")
+                db.execSQL("INSERT INTO categories (name) VALUES ('Study')")
+                db.execSQL("INSERT INTO categories (name) VALUES ('Others')")
             }
         }
     }

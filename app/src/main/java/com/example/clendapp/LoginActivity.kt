@@ -3,6 +3,7 @@ package com.example.clendapp
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -33,11 +34,22 @@ class LoginActivity : AppCompatActivity() {
 
         binding.ivShowPassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
+
+            // Animation for the icon
+            binding.ivShowPassword.animate()
+                .rotation(if (isPasswordVisible) 180f else 0f)
+                .scaleX(if (isPasswordVisible) 1.2f else 1.0f)
+                .scaleY(if (isPasswordVisible) 1.2f else 1.0f)
+                .setDuration(300)
+                .start()
+
             if (isPasswordVisible) {
                 binding.etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                binding.ivShowPassword.setImageResource(R.drawable.ic_visibility)
                 binding.ivShowPassword.alpha = 1.0f
             } else {
                 binding.etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                binding.ivShowPassword.setImageResource(R.drawable.ic_visibility_off)
                 binding.ivShowPassword.alpha = 0.5f
             }
             binding.etPassword.setSelection(binding.etPassword.text.length)
@@ -58,6 +70,11 @@ class LoginActivity : AppCompatActivity() {
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show()
             return
         }
 

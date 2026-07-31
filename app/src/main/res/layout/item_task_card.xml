@@ -27,10 +27,20 @@
                 android:backgroundTint="#00C853" />
 
             <TextView
-                android:id="@+id/tv_task_time"
+                android:id="@+id/tv_task_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="Work"
+                android:textColor="#999999"
+                android:textSize="12sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/tv_task_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:text="10:00-13:00"
                 android:textColor="#999999"
                 android:textSize="14sp" />
