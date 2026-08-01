@@ -113,7 +113,7 @@
 
         </LinearLayout>
 
-        <!-- Schedule Today Section -->
+        <!-- Points Resume Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -125,60 +125,119 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Points Resume"
+                android:text="Stats Resume"
                 android:fontFamily="@font/hey_comic"
                 android:textColor="#2A2A2A"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <!-- Timeline labels -->
+                <!-- Calculator Score -->
                 <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_blue_card"
+                    android:layout_marginEnd="8dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_math"
+                        app:tint="#FFFFFF" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Calculator"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_resume_calculator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 points"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <!-- Study Score -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_blue_card">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_clock"
+                        app:tint="#FFFFFF" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Study"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_resume_study"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 points"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Rank Info - Centered Below -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:padding="12dp"
+                android:background="@drawable/bg_pill"
+                android:backgroundTint="#F2F2F2">
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="08.00" android:textColor="#CCCCCC" android:textSize="14sp" android:layout_marginBottom="40dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10.00" android:textColor="#CCCCCC" android:textSize="14sp" android:layout_marginBottom="40dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12.00" android:textColor="#CCCCCC" android:textSize="14sp" android:layout_marginBottom="40dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="14.00" android:textColor="#CCCCCC" android:textSize="14sp" android:layout_marginBottom="40dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="16.00" android:textColor="#CCCCCC" android:textSize="14sp" />
-                </LinearLayout>
+                    android:text="Current Rank"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
 
-                <!-- Cards -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/tv_resume_rank"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="60dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_blue_card"
-                        android:padding="16dp"
-                        android:text="Lorem ipsum dolor sit amet consectetur adipiscing elit, viverra commodo tempus risus lacinia imperdiet, proin scelerisque."
-                        android:textColor="#FFFFFF"
-                        android:textSize="13sp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="24dp"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_blue_card"
-                        android:padding="16dp"
-                        android:text="Lorem ipsum dolor sit amet adipiscing elit, viverra commodo tempus risus lacinia imperdiet, proin scelerisque."
-                        android:textColor="#FFFFFF"
-                        android:textSize="13sp"
-                        android:layout_marginTop="16dp"/>
-
-                </LinearLayout>
-
-            </RelativeLayout>
+                    android:text="Potato"
+                    android:textColor="#7C4DFF"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/hey_comic"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
 
         </LinearLayout>
 

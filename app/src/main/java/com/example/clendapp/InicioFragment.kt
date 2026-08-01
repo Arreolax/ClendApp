@@ -44,9 +44,31 @@ class InicioFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateGreeting()
+        loadUserScores()
         setupCalendar()
         setupRecyclerView()
         observeReminders()
+    }
+
+    private fun loadUserScores() {
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                val scores = database.scoresDao().getScoresByUserId(userId)
+                if (_binding == null) return@launch
+                
+                scores?.let {
+                    binding.tvResumeCalculator.text = "${it.calculator_score} points"
+                    binding.tvResumeStudy.text = "${it.study_score} points"
+                    
+                    val rank = database.ranksDao().getRankById(it.id_rank)
+                    binding.tvResumeRank.text = rank?.name ?: "Potato"
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {

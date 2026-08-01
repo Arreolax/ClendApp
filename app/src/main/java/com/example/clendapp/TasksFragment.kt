@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.FragmentTasksBinding
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
 class TasksFragment : Fragment() {
@@ -19,6 +21,8 @@ class TasksFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var tasksAdapter: TasksAdapter
+    private var allTasks: List<Tasks> = emptyList()
+    private var isAscending: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,12 +37,24 @@ class TasksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupRecyclerView()
+        setupTabs()
+        setupSortButton()
         observeTasks()
+    }
+
+    private fun setupSortButton() {
+        binding.btnSort.setOnClickListener {
+            isAscending = !isAscending
+            // Rotar el icono para dar feedback visual (opcional)
+            binding.btnSort.animate().rotation(if (isAscending) 0f else 180f).setDuration(300).start()
+            filterAndSubmitTasks()
+        }
     }
 
     private fun setupRecyclerView() {
         val database = AppDatabase.getDatabase(requireContext())
         tasksAdapter = TasksAdapter(
+            showHeaders = false,
             onTaskClick = { task ->
                 Toast.makeText(requireContext(), "Task: ${task.title}", Toast.LENGTH_SHORT).show()
             },
@@ -67,6 +83,16 @@ class TasksFragment : Fragment() {
         }
     }
 
+    private fun setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                filterAndSubmitTasks()
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
     private fun observeTasks() {
         val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val loggedInUserId = sharedPref.getInt("user_id", -1)
@@ -80,15 +106,35 @@ class TasksFragment : Fragment() {
 
             database.tasksDao().getAllTasks(loggedInUserId).collect { tasks ->
                 if (_binding == null) return@collect
-                if (tasks.isEmpty()) {
-                    binding.rvTasks.visibility = View.GONE
-                    binding.layoutEmptyState.visibility = View.VISIBLE
-                } else {
-                    binding.rvTasks.visibility = View.VISIBLE
-                    binding.layoutEmptyState.visibility = View.GONE
-                    tasksAdapter.submitTasks(tasks)
-                }
+                allTasks = tasks
+                filterAndSubmitTasks()
             }
+        }
+    }
+
+    private fun filterAndSubmitTasks() {
+        val isCompletedTab = binding.tabLayout.selectedTabPosition == 1
+        var filteredTasks = if (isCompletedTab) {
+            allTasks.filter { it.isCompleted }
+        } else {
+            allTasks.filter { !it.isCompleted }
+        }
+
+        // Aplicar ordenamiento
+        filteredTasks = if (isAscending) {
+            filteredTasks.sortedWith(compareBy({ it.date }, { it.dueDate }))
+        } else {
+            filteredTasks.sortedWith(compareByDescending<Tasks> { it.date }.thenByDescending { it.dueDate })
+        }
+
+        if (filteredTasks.isEmpty()) {
+            binding.rvTasks.visibility = View.GONE
+            binding.layoutEmptyState.visibility = View.VISIBLE
+            binding.tvEmptyMessage.text = if (isCompletedTab) "No completed tasks" else "No pending tasks"
+        } else {
+            binding.rvTasks.visibility = View.VISIBLE
+            binding.layoutEmptyState.visibility = View.GONE
+            tasksAdapter.submitTasks(filteredTasks)
         }
     }
 

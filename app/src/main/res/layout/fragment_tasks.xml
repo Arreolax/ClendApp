@@ -10,27 +10,70 @@
         android:layout_height="match_parent"
         android:padding="24dp">
 
-        <TextView
-            android:id="@+id/tv_tasks_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tasks"
-            android:textColor="#2A2A2A"
-            android:fontFamily="@font/hey_comic"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_tasks_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tasks"
+                android:textColor="#2A2A2A"
+                android:fontFamily="@font/hey_comic"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:icon="@drawable/ic_sort"
+                app:iconTint="#7C4DFF"
+                app:backgroundTint="#F2F2F2"
+                app:cornerRadius="12dp" />
+
+        </LinearLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            app:tabIndicatorColor="#7C4DFF"
+            app:tabSelectedTextColor="#7C4DFF"
+            app:tabTextColor="#999999"
+            app:tabIndicatorHeight="3dp"
+            app:tabTextAppearance="@style/TextAppearance.Material3.TitleSmall"
+            app:layout_constraintTop_toBottomOf="@id/layout_header">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed" />
+        </com.google.android.material.tabs.TabLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_tasks"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:paddingBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_tasks_title" />
+            app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
         <LinearLayout
             android:id="@+id/layout_empty_state"
@@ -42,7 +85,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_tasks_title">
+            app:layout_constraintTop_toBottomOf="@id/tab_layout">
 
             <ImageView
                 android:layout_width="120dp"
@@ -51,6 +94,7 @@
                 android:src="@drawable/ic_notes" />
 
             <TextView
+                android:id="@+id/tv_empty_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -60,6 +104,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_empty_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

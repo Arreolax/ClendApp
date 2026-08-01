@@ -109,6 +109,7 @@ class CalendarFragment : Fragment() {
     private fun setupRecyclerView() {
         val database = AppDatabase.getDatabase(requireContext())
         tasksAdapter = TasksAdapter(
+            showHeaders = false,
             onTaskClick = { task ->
                 Toast.makeText(requireContext(), "Task: ${task.title}", Toast.LENGTH_SHORT).show()
             },

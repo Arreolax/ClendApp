@@ -36,31 +36,28 @@ class ReminderAdapter(
             binding.tvReminderTitle.text = task.title
             binding.tvReminderTitle.setTextColor(android.graphics.Color.WHITE)
 
-            // Red border and time if late
-            if (task.late) {
-                binding.root.setBackgroundResource(R.drawable.bg_blue_card_late)
-                binding.tvReminderTime.setTextColor(android.graphics.Color.RED)
-                binding.ivLateIndicator.visibility = android.view.View.VISIBLE
-            } else {
-                binding.root.setBackgroundResource(R.drawable.bg_blue_card)
-                binding.tvReminderTime.setTextColor(android.graphics.Color.WHITE)
-                binding.ivLateIndicator.visibility = android.view.View.GONE
+            // Status logic for reminders
+            when {
+                task.late -> {
+                    binding.root.setBackgroundResource(R.drawable.bg_blue_card_late)
+                    binding.tvReminderTime.setTextColor(android.graphics.Color.RED)
+                    binding.ivStatusIcon.visibility = android.view.View.VISIBLE
+                    binding.ivStatusIcon.setImageResource(R.drawable.ic_error)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.RED)
+                }
+                else -> {
+                    binding.root.setBackgroundResource(R.drawable.bg_blue_card)
+                    binding.tvReminderTime.setTextColor(android.graphics.Color.WHITE)
+                    binding.ivStatusIcon.visibility = android.view.View.VISIBLE
+                    binding.ivStatusIcon.setImageResource(R.drawable.ic_clock)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+                }
             }
 
             binding.tvReminderDescription.text = task.description ?: ""
             
             val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
             binding.tvReminderTime.text = timeFormatter.format(Date(task.dueDate))
-
-            // Update icon background based on category
-            val color = when (task.id_category) {
-                1 -> "#673AB7" // Purple
-                2 -> "#4CAF50" // Green
-                else -> "#2196F3" // Blue
-            }
-            
-            // Note: The parent FrameLayout doesn't have an ID in the layout, 
-            // but we can color the light blue icon background or just keep the style
 
             binding.root.setOnClickListener { onTaskClick(task) }
         }

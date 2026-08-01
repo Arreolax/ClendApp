@@ -15,21 +15,25 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class TasksAdapter(
+    private val showHeaders: Boolean = true,
     private val onTaskClick: (Tasks) -> Unit,
     private val onEditClick: (Tasks) -> Unit,
     private val onDeleteClick: (Tasks) -> Unit,
     private val onDoneClick: (Tasks) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var items: List<TaskListItem> = emptyList()
+    private var allItems: List<TaskListItem> = emptyList()
+    private var visibleItems: List<TaskListItem> = emptyList()
+    private val collapsedDates = mutableSetOf<String>()
+    private val lateHeaderDates = mutableSetOf<String>()
 
     sealed class TaskListItem {
-        data class Header(val date: String) : TaskListItem()
-        data class TaskItem(val task: Tasks) : TaskListItem()
+        data class Header(val date: String, val isAllLate: Boolean) : TaskListItem()
+        data class TaskItem(val task: Tasks, val headerDate: String) : TaskListItem()
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (items[position]) {
+        return when (visibleItems[position]) {
             is TaskListItem.Header -> TYPE_HEADER
             is TaskListItem.TaskItem -> TYPE_TASK
         }
@@ -45,34 +49,81 @@ class TasksAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = items[position]) {
-            is TaskListItem.Header -> (holder as HeaderViewHolder).bind(item.date)
+        when (val item = visibleItems[position]) {
+            is TaskListItem.Header -> (holder as HeaderViewHolder).bind(item.date, item.isAllLate)
             is TaskListItem.TaskItem -> (holder as TaskViewHolder).bind(item.task)
         }
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = visibleItems.size
 
     fun submitTasks(tasks: List<Tasks>) {
         val groupedList = mutableListOf<TaskListItem>()
         val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val tasksByDateStr = tasks.groupBy { formatter.format(Date(it.date)) }
+        
+        lateHeaderDates.clear()
+        tasksByDateStr.forEach { (dateStr, dateTasks) ->
+            val allLate = dateTasks.isNotEmpty() && dateTasks.all { it.late }
+            if (allLate) {
+                lateHeaderDates.add(dateStr)
+            }
+            
+            val taskDate = dateTasks.first().date
+            if (showHeaders && taskDate < today && allLate) {
+                collapsedDates.add(dateStr)
+            }
+        }
+
         var lastDate = ""
         tasks.forEach { task ->
             val dateStr = formatter.format(Date(task.date))
-            if (dateStr != lastDate) {
-                groupedList.add(TaskListItem.Header(dateStr))
+            if (showHeaders && dateStr != lastDate) {
+                val isAllLate = lateHeaderDates.contains(dateStr)
+                groupedList.add(TaskListItem.Header(dateStr, isAllLate))
                 lastDate = dateStr
             }
-            groupedList.add(TaskListItem.TaskItem(task))
+            groupedList.add(TaskListItem.TaskItem(task, dateStr))
         }
-        items = groupedList
+        allItems = groupedList
+        updateVisibleItems()
+    }
+
+    private fun updateVisibleItems() {
+        visibleItems = allItems.filter { item ->
+            when (item) {
+                is TaskListItem.Header -> true
+                is TaskListItem.TaskItem -> !collapsedDates.contains(item.headerDate)
+            }
+        }
         notifyDataSetChanged()
     }
 
-    class HeaderViewHolder(private val binding: ItemDateHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(date: String) {
+    inner class HeaderViewHolder(private val binding: ItemDateHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(date: String, isAllLate: Boolean) {
             binding.tvDateHeader.text = date
+            
+            binding.ivHeaderLateIndicator.visibility = if (isAllLate) android.view.View.VISIBLE else android.view.View.GONE
+            
+            val isCollapsed = collapsedDates.contains(date)
+            binding.ivExpandCollapse.rotation = if (isCollapsed) 0f else 90f
+            
+            binding.root.setOnClickListener {
+                if (isCollapsed) {
+                    collapsedDates.remove(date)
+                } else {
+                    collapsedDates.add(date)
+                }
+                updateVisibleItems()
+            }
         }
     }
 
@@ -80,24 +131,35 @@ class TasksAdapter(
         fun bind(task: Tasks) {
             val isLate = task.late && !task.isCompleted
             
-            // Title
             binding.tvTaskTitle.text = task.title
             binding.tvTaskTitle.setTextColor(android.graphics.Color.parseColor("#2A2A2A"))
 
-            // Red border and time if late
-            if (isLate) {
-                binding.root.setBackgroundResource(R.drawable.bg_section_outline_late)
-                binding.tvTaskTime.setTextColor(android.graphics.Color.RED)
-                binding.ivLateIndicator.visibility = android.view.View.VISIBLE
-            } else {
-                binding.root.setBackgroundResource(R.drawable.bg_section_outline)
-                binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#999999"))
-                binding.ivLateIndicator.visibility = android.view.View.GONE
+            when {
+                task.isCompleted -> {
+                    binding.root.setBackgroundResource(R.drawable.bg_section_outline_completed)
+                    binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#00C853"))
+                    binding.ivStatusIcon.visibility = android.view.View.VISIBLE
+                    binding.ivStatusIcon.setImageResource(R.drawable.ic_check)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#00C853"))
+                }
+                isLate -> {
+                    binding.root.setBackgroundResource(R.drawable.bg_section_outline_late)
+                    binding.tvTaskTime.setTextColor(android.graphics.Color.RED)
+                    binding.ivStatusIcon.visibility = android.view.View.VISIBLE
+                    binding.ivStatusIcon.setImageResource(R.drawable.ic_error)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.RED)
+                }
+                else -> {
+                    binding.root.setBackgroundResource(R.drawable.bg_section_outline)
+                    binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#999999"))
+                    binding.ivStatusIcon.visibility = android.view.View.VISIBLE
+                    binding.ivStatusIcon.setImageResource(R.drawable.ic_clock)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#999999"))
+                }
             }
 
             binding.tvTaskDescription.text = task.description ?: ""
             
-            // Get category name
             CoroutineScope(Dispatchers.IO).launch {
                 val db = AppDatabase.getDatabase(binding.root.context)
                 val category = db.categoriesDao().getCategoryById(task.id_category)
@@ -106,7 +168,6 @@ class TasksAdapter(
                 }
             }
             
-            // Tachado si está completada
             if (task.isCompleted) {
                 binding.tvTaskTitle.paintFlags = binding.tvTaskTitle.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
                 binding.root.alpha = 0.6f
@@ -116,8 +177,11 @@ class TasksAdapter(
             }
 
             val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val end = timeFormatter.format(Date(task.dueDate))
-            binding.tvTaskTime.text = end
+            val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val timeStr = timeFormatter.format(Date(task.dueDate))
+            val dateStr = dateFormatter.format(Date(task.date))
+            
+            binding.tvTaskTime.text = "$dateStr - $timeStr"
 
             binding.root.setOnClickListener { onTaskClick(task) }
             
@@ -144,7 +208,6 @@ class TasksAdapter(
                 popup.show()
             }
             
-            // Color de categoría según el ID
             val color = when (task.id_category) {
                 1 -> "#673AB7" // Purple
                 2 -> "#4CAF50" // Green
