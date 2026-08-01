@@ -9,21 +9,26 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.WindowManager
 import android.widget.Chronometer
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
+import kotlin.math.min
 
 class prueba : AppCompatActivity() {
 
     private var isLockedState = false
     private lateinit var chronometerView: Chronometer
+    private lateinit var volumeToggle: ImageView
     private var currentLayoutResId: Int = 0
     private var isServiceStarted = false
 
@@ -33,15 +38,13 @@ class prueba : AppCompatActivity() {
                 val remaining = intent.getLongExtra(BackgroundService.EXTRA_TIME, 0)
                 val locked = intent.getBooleanExtra(BackgroundService.EXTRA_LOCKED, true)
                 val finished = intent.getBooleanExtra(BackgroundService.EXTRA_FINISHED, false)
+                val musicOn = intent.getBooleanExtra(BackgroundService.EXTRA_MUSIC_ON, true)
 
                 updateUI(remaining)
+                updateMusicIcon(musicOn)
 
                 if (finished) {
-                    unlockApp()
-                    val backToCronometro = Intent(this@prueba, Cronometro::class.java)
-                    backToCronometro.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    startActivity(backToCronometro)
-                    finish()
+                    showFinishModal()
                     return
                 }
 
@@ -55,10 +58,10 @@ class prueba : AppCompatActivity() {
     private val backPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if (isLockedState) {
-                Toast.makeText(this@prueba, "Modo estudio activo: No puedes salir", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@prueba, "Study mode active: You cannot leave", Toast.LENGTH_SHORT).show()
             } else {
                 if (!isServiceStarted) {
-                    finish() // Si no ha empezado, permitir salir
+                    finish() 
                 } else {
                     moveTaskToBack(true)
                 }
@@ -86,8 +89,14 @@ class prueba : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
         chronometerView = findViewById(R.id.chronometer_prueba)
         chronometerView.text = "00:00:00"
+        
+        volumeToggle = findViewById(R.id.btn_volume_toggle)
+        volumeToggle.setOnClickListener {
+            val toggleIntent = Intent(this, BackgroundService::class.java)
+            toggleIntent.action = BackgroundService.ACTION_TOGGLE_MUSIC
+            startService(toggleIntent)
+        }
 
-        // IMPORTANTE: Primero verificamos permisos, el servicio NO inicia aquí
         checkOverlayPermissionAndStart()
 
         val filter = IntentFilter(BackgroundService.ACTION_TIMER_UPDATE)
@@ -98,25 +107,80 @@ class prueba : AppCompatActivity() {
         }
     }
 
+    private fun showFinishModal() {
+        unlockApp()
+        val totalTimeMillis = intent.getLongExtra("TOTAL_TIME_MILLIS", 0)
+        
+        val fullCycles = totalTimeMillis / 40000
+        val remainder = totalTimeMillis % 40000
+        val studyMillis = (fullCycles * 30000) + min(remainder, 30000)
+        
+        val totalSeconds = studyMillis / 1000
+        val h = totalSeconds / 3600
+        val m = (totalSeconds % 3600) / 60
+        val s = totalSeconds % 60
+        val studyTimeFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", h, m, s)
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Session Finished!"
+        dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Congratulations on completing your session.\n\nReal study time: $studyTimeFormatted"
+        
+        dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Accept"
+        dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
+            dialog.dismiss()
+            val backToCronometro = Intent(this, Cronometro::class.java)
+            backToCronometro.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            startActivity(backToCronometro)
+            finish()
+        }
+
+        dialog.show()
+    }
+
+    private fun updateMusicIcon(musicOn: Boolean) {
+        if (musicOn) {
+            volumeToggle.setImageResource(R.drawable.ic_volume_off)
+        } else {
+            volumeToggle.setImageResource(R.drawable.ic_volume_up)
+        }
+    }
+
     private fun checkOverlayPermissionAndStart() {
         if (!Settings.canDrawOverlays(this)) {
             isLockedState = false
-            backPressedCallback.isEnabled = false // Permitir atrás para salir si no quiere dar permiso
+            backPressedCallback.isEnabled = false 
             
-            MaterialAlertDialogBuilder(this)
-                .setTitle("Permiso Requerido")
-                .setMessage("Para que el modo estudio funcione y la app regrese sola tras el tiempo libre, activa 'Mostrar sobre otras apps'.")
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+            val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+                .setView(dialogView)
                 .setCancelable(false)
-                .setPositiveButton("Configurar") { _, _ ->
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-                    startActivity(intent)
-                }
-                .setNegativeButton("Cancelar") { _, _ ->
-                    finish()
-                }
-                .show()
+                .create()
+
+            dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Permission Required"
+            dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "To enable study mode and auto-return after breaks, please activate 'Display over other apps'."
+            
+            dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Configure"
+            dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
+                dialog.dismiss()
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+                startActivity(intent)
+            }
+
+            val btnCancel = dialogView.findViewById<TextView>(R.id.btn_dialog_cancel)
+            btnCancel.visibility = android.view.View.VISIBLE
+            btnCancel.text = "Cancel"
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+                finish()
+            }
+
+            dialog.show()
         } else {
-            // Si ya tiene permiso, iniciamos el servicio
             startStudyService()
         }
     }
@@ -134,13 +198,12 @@ class prueba : AppCompatActivity() {
                 startService(serviceIntent)
             }
             isServiceStarted = true
-            lockApp() // Empezamos bloqueando
+            lockApp() 
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // Cuando el usuario regresa de Ajustes, comprobamos si ya dio el permiso
         if (!isServiceStarted && Settings.canDrawOverlays(this)) {
             startStudyService()
         }
@@ -169,7 +232,7 @@ class prueba : AppCompatActivity() {
         try {
             startLockTask()
         } catch (e: Exception) {}
-        Toast.makeText(this, "BLOQUEADO - ¡A ESTUDIAR!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "LOCKED - STUDY TIME!", Toast.LENGTH_SHORT).show()
     }
 
     private fun unlockApp() {
@@ -178,7 +241,7 @@ class prueba : AppCompatActivity() {
         try {
             stopLockTask()
         } catch (e: Exception) {}
-        Toast.makeText(this, "TIEMPO LIBRE - 10 SEGUNDOS", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "FREE TIME - 10 SECONDS", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {

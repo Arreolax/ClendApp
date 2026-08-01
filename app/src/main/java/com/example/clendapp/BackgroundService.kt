@@ -2,6 +2,7 @@ package com.example.clendapp
 
 import android.app.*
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
@@ -12,12 +13,17 @@ class BackgroundService : Service() {
 
     private var countDownTimer: CountDownTimer? = null
     private var isCurrentlyLocked: Boolean? = null
+    private var mediaPlayer: MediaPlayer? = null
+    private var ringtonePlayer: MediaPlayer? = null
+    private var isMusicEnabled = true
 
     companion object {
         const val ACTION_TIMER_UPDATE = "com.example.clendapp.TIMER_UPDATE"
+        const val ACTION_TOGGLE_MUSIC = "com.example.clendapp.TOGGLE_MUSIC"
         const val EXTRA_TIME = "extra_time"
         const val EXTRA_LOCKED = "extra_locked"
         const val EXTRA_FINISHED = "extra_finished"
+        const val EXTRA_MUSIC_ON = "extra_music_on"
         const val CHANNEL_ID = "TimerServiceChannel"
         const val NOTIFICATION_ID = 1
     }
@@ -25,9 +31,20 @@ class BackgroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        mediaPlayer = MediaPlayer.create(this, R.raw.subwooferlullaby)
+        mediaPlayer?.isLooping = true
+        
+        ringtonePlayer = MediaPlayer.create(this, R.raw.cuteringtone2)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_TOGGLE_MUSIC) {
+            isMusicEnabled = !isMusicEnabled
+            handleMusicState()
+            broadcastUpdate(0, isCurrentlyLocked ?: true, false)
+            return START_NOT_STICKY
+        }
+
         val totalTime = intent?.getLongExtra("TOTAL_TIME", 0) ?: 0
         if (totalTime > 0) {
             startForeground(NOTIFICATION_ID, createNotification("Iniciando modo concentración..."))
@@ -55,20 +72,27 @@ class BackgroundService : Service() {
             }
 
             override fun onFinish() {
+                isCurrentlyLocked = false
+                handleMusicState()
+                playRingtone() // Suena al finalizar todo el tiempo
                 broadcastUpdate(0, false, true)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    @Suppress("DEPRECATION")
-                    stopForeground(true)
-                }
-                stopSelf()
+                
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        stopForeground(true)
+                    }
+                    stopSelf()
+                }, 2000)
             }
         }.start()
     }
 
     private fun handleLockTransition(locked: Boolean, time: Long) {
         broadcastUpdate(time, locked, false)
+        handleMusicState()
         
         if (locked) {
             val activityIntent = Intent(this, prueba::class.java)
@@ -76,6 +100,33 @@ class BackgroundService : Service() {
                                     Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or 
                                     Intent.FLAG_ACTIVITY_SINGLE_TOP)
             startActivity(activityIntent)
+        } else {
+            playRingtone()
+        }
+    }
+
+    private fun playRingtone() {
+        try {
+            if (ringtonePlayer?.isPlaying == true) {
+                ringtonePlayer?.stop()
+                ringtonePlayer?.prepare()
+            }
+            ringtonePlayer?.start()
+        } catch (e: Exception) {
+            ringtonePlayer = MediaPlayer.create(this, R.raw.cuteringtone2)
+            ringtonePlayer?.start()
+        }
+    }
+
+    private fun handleMusicState() {
+        if (isMusicEnabled && isCurrentlyLocked == true) {
+            if (mediaPlayer?.isPlaying == false) {
+                mediaPlayer?.start()
+            }
+        } else {
+            if (mediaPlayer?.isPlaying == true) {
+                mediaPlayer?.pause()
+            }
         }
     }
 
@@ -84,6 +135,7 @@ class BackgroundService : Service() {
         intent.putExtra(EXTRA_TIME, time)
         intent.putExtra(EXTRA_LOCKED, locked)
         intent.putExtra(EXTRA_FINISHED, finished)
+        intent.putExtra(EXTRA_MUSIC_ON, isMusicEnabled)
         sendBroadcast(intent)
     }
 
@@ -129,6 +181,10 @@ class BackgroundService : Service() {
 
     override fun onDestroy() {
         countDownTimer?.cancel()
+        mediaPlayer?.release()
+        ringtonePlayer?.release()
+        mediaPlayer = null
+        ringtonePlayer = null
         super.onDestroy()
     }
 }
