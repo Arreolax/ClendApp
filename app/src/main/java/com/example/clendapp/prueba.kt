@@ -140,13 +140,17 @@ class prueba : AppCompatActivity() {
         }
 
         dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun updateMusicIcon(musicOn: Boolean) {
         if (musicOn) {
-            volumeToggle.setImageResource(R.drawable.ic_volume_off)
-        } else {
             volumeToggle.setImageResource(R.drawable.ic_volume_up)
+        } else {
+            volumeToggle.setImageResource(R.drawable.ic_volume_off)
         }
     }
 
@@ -162,7 +166,10 @@ class prueba : AppCompatActivity() {
                 .create()
 
             dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Permission Required"
-            dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "To enable study mode and auto-return after breaks, please activate 'Display over other apps'."
+            dialogView.findViewById<TextView>(R.id.tv_dialog_message).apply {
+                text = "To enable study mode and auto-return after breaks, please activate 'Display over other apps'."
+                textSize = 18f // Un poco más grande para mejor lectura
+            }
             
             dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Configure"
             dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
@@ -180,6 +187,10 @@ class prueba : AppCompatActivity() {
             }
 
             dialog.show()
+            dialog.window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.9).toInt(),
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
         } else {
             startStudyService()
         }
