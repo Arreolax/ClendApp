@@ -40,6 +40,14 @@ class TasksFragment : Fragment() {
         setupTabs()
         setupSortButton()
         observeTasks()
+        setupSwipeRefresh()
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            observeTasks()
+            binding.swipeRefresh.isRefreshing = false
+        }
     }
 
     private fun setupSortButton() {
@@ -65,6 +73,7 @@ class TasksFragment : Fragment() {
             onDeleteClick = { task ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     database.tasksDao().delete(task)
+                    NotificationHelper.cancelTaskNotification(requireContext(), task.id)
                     Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
@@ -72,6 +81,13 @@ class TasksFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
+                    
+                    if (updatedTask.isCompleted) {
+                        NotificationHelper.cancelTaskNotification(requireContext(), task.id)
+                    } else {
+                        NotificationHelper.scheduleTaskNotification(requireContext(), updatedTask)
+                    }
+
                     val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }

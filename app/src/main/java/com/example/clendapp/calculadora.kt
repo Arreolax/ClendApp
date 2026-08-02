@@ -14,6 +14,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Scores
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class calculadora : AppCompatActivity() {
@@ -56,7 +60,24 @@ class calculadora : AppCompatActivity() {
 
         // Cargar mejor puntaje
         val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
         bestScore = sharedPref.getInt("best_score_calc", 0)
+
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(this)
+            lifecycleScope.launch {
+                val scores = database.scoresDao().getScoresByUserId(userId)
+                scores?.let {
+                    if (it.calculator_score > bestScore) {
+                        bestScore = it.calculator_score
+                        with(sharedPref.edit()) {
+                            putInt("best_score_calc", bestScore)
+                            apply()
+                        }
+                    }
+                }
+            }
+        }
 
         btnJuego.setOnClickListener {
             if (isGameMode) {
@@ -113,21 +134,39 @@ class calculadora : AppCompatActivity() {
     }
 
     private fun handleTimeout() {
-        showStatusModal("Time's up!", "Time is over, your score is: $score") {
-            updateBestScore()
-            score = 0
-            tvScore.text = "Score: $score"
-            nextQuestion()
-        }
+        val finalScore = score
+        updateBestScore(finalScore)
+        showGameOverModal(finalScore, "Time's up!")
     }
 
-    private fun updateBestScore() {
-        if (score > bestScore) {
-            bestScore = score
-            val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+    private fun updateBestScore(currentScore: Int) {
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+
+        // 1. Actualizar localmente si es record
+        if (currentScore > bestScore) {
+            bestScore = currentScore
             with(sharedPref.edit()) {
                 putInt("best_score_calc", bestScore)
                 apply()
+            }
+        }
+
+        // 2. Sincronizar con base de datos siempre que haya un usuario
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(this)
+            lifecycleScope.launch {
+                val scores = database.scoresDao().getScoresByUserId(userId)
+                if (scores != null) {
+                    if (currentScore > scores.calculator_score) {
+                        val updatedScores = scores.copy(calculator_score = currentScore)
+                        database.scoresDao().updateScores(updatedScores)
+                    }
+                } else {
+                    // Si no existe el registro, lo creamos
+                    val newScores = Scores(id_user = userId, calculator_score = currentScore)
+                    database.scoresDao().insertScores(newScores)
+                }
             }
         }
     }
@@ -183,21 +222,53 @@ class calculadora : AppCompatActivity() {
             if (userResult == targetResult) {
                 score++
                 tvScore.text = "Score: $score"
-                showStatusModal("Correct!", "Correct, your score is: $score") {
-                    nextQuestion()
-                }
+                // No modal for correct answer, just go to next question
+                nextQuestion()
             } else {
-                showStatusModal("Incorrect", "Incorrect, your score is: $score") {
-                    updateBestScore()
-                    score = 0
-                    tvScore.text = "Score: $score"
-                    nextQuestion()
-                }
+                val finalScore = score
+                updateBestScore(finalScore)
+                showGameOverModal(finalScore)
             }
         } catch (e: Exception) {
             Toast.makeText(this, "Enter a valid number", Toast.LENGTH_SHORT).show()
             startTimer()
         }
+    }
+
+    private fun showGameOverModal(finalScore: Int, title: String = "Incorrect") {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setCancelable(false)
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = title
+        dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Game Over\nYour score is: $finalScore"
+        
+        val btnRetry = dialogView.findViewById<TextView>(R.id.btn_dialog_accept)
+        val btnExit = dialogView.findViewById<TextView>(R.id.btn_dialog_cancel)
+        
+        btnRetry.text = "Retry"
+        btnExit.text = "Exit"
+        btnExit.visibility = View.VISIBLE
+
+        btnRetry.setOnClickListener {
+            dialog.dismiss()
+            score = 0
+            tvScore.text = "Score: $score"
+            nextQuestion()
+        }
+
+        btnExit.setOnClickListener {
+            dialog.dismiss()
+            stopGame()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun showStatusModal(title: String, message: String, onAccept: () -> Unit) {
@@ -242,7 +313,7 @@ class calculadora : AppCompatActivity() {
 
         btnAccept.setOnClickListener {
             dialog.dismiss()
-            updateBestScore()
+            updateBestScore(score)
             showGoodbyeModal()
         }
 

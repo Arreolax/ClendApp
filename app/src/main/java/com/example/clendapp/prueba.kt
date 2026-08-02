@@ -21,6 +21,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Scores
+import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.min
 
@@ -131,6 +135,10 @@ class prueba : AppCompatActivity() {
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Congratulations on completing your session.\n\nReal study time: $studyTimeFormatted"
         
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Accept"
+        
+        // Update database with study points
+        updateStudyScore(studyMillis)
+
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
             dialog.dismiss()
             val backToCronometro = Intent(this, Cronometro::class.java)
@@ -144,6 +152,30 @@ class prueba : AppCompatActivity() {
             (resources.displayMetrics.widthPixels * 0.9).toInt(),
             WindowManager.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    private fun updateStudyScore(studyMillis: Long) {
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+        
+        if (userId != -1) {
+            val studyPoints = (studyMillis / 60000).toInt() // 1 point per minute
+            if (studyPoints <= 0) return
+
+            val database = AppDatabase.getDatabase(this)
+            lifecycleScope.launch {
+                val currentScores = database.scoresDao().getScoresByUserId(userId)
+                if (currentScores != null) {
+                    val updatedScores = currentScores.copy(
+                        study_score = currentScores.study_score + studyPoints
+                    )
+                    database.scoresDao().updateScores(updatedScores)
+                } else {
+                    val newScores = Scores(id_user = userId, study_score = studyPoints)
+                    database.scoresDao().insertScores(newScores)
+                }
+            }
+        }
     }
 
     private fun updateMusicIcon(musicOn: Boolean) {

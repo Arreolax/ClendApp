@@ -5,147 +5,153 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent">
 
-            <!-- Toolbar Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="Calendar"
-                    android:textColor="#2A2A2A"
-                    android:fontFamily="@font/hey_comic"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Month Selector -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_prev_month"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentStart="true"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_chevron_left"
-                    app:iconGravity="textStart"
-                    app:iconPadding="0dp"
-                    app:iconTint="#2A2A2A"
-                    app:backgroundTint="#F8F8F8"
-                    style="@style/Widget.Material3.Button.IconButton" />
-
+                <!-- Toolbar Header -->
                 <LinearLayout
-                    android:id="@+id/layout_month_year"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="24dp">
 
                     <TextView
-                        android:id="@+id/tv_month"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="May"
+                        android:layout_marginStart="16dp"
+                        android:text="Calendar"
                         android:textColor="#2A2A2A"
-                        android:textSize="18sp"
+                        android:fontFamily="@font/hey_comic"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_year"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2026"
-                        android:textColor="#999999"
-                        android:textSize="12sp" />
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_next_month"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_chevron_right"
-                    app:iconGravity="textStart"
-                    app:iconPadding="0dp"
-                    app:iconTint="#2A2A2A"
-                    app:backgroundTint="#F8F8F8"
-                    style="@style/Widget.Material3.Button.IconButton" />
-            </RelativeLayout>
-
-            <!-- Custom Calendar Grid View -->
-            <GridLayout
-                android:id="@+id/calendar_grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="7"
-                android:layout_marginBottom="24dp">
-
-                <!-- Days of Week labels - will be kept -->
-                <TextView style="@style/CalendarDayLabel" android:text="Mon" />
-                <TextView style="@style/CalendarDayLabel" android:text="Tue" />
-                <TextView style="@style/CalendarDayLabel" android:text="Wed" />
-                <TextView style="@style/CalendarDayLabel" android:text="Thu" />
-                <TextView style="@style/CalendarDayLabel" android:text="Fri" />
-                <TextView style="@style/CalendarDayLabel" android:text="Sat" />
-                <TextView style="@style/CalendarDayLabel" android:text="Sun" />
-
-                <!-- Day numbers will be added programmatically here -->
-            </GridLayout>
-
-            <!-- Tasks List -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="80dp">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_calendar_tasks"
+                <!-- Month Selector -->
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
+                    android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:id="@+id/tv_empty_tasks"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_prev_month"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentStart="true"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_chevron_left"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconTint="#2A2A2A"
+                        app:backgroundTint="#F8F8F8"
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_month_year"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_month"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="May"
+                            android:textColor="#2A2A2A"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2026"
+                            android:textColor="#999999"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_next_month"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentEnd="true"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconTint="#2A2A2A"
+                        app:backgroundTint="#F8F8F8"
+                        style="@style/Widget.Material3.Button.IconButton" />
+                </RelativeLayout>
+
+                <!-- Custom Calendar Grid View -->
+                <GridLayout
+                    android:id="@+id/calendar_grid"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:gravity="center"
-                    android:text="@string/empty_tasks_day"
-                    android:textColor="#999999"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
-            </FrameLayout>
+                    android:layout_height="wrap_content"
+                    android:columnCount="7"
+                    android:layout_marginBottom="24dp">
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                    <!-- Days of Week labels - will be kept -->
+                    <TextView style="@style/CalendarDayLabel" android:text="Mon" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Tue" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Wed" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Thu" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Fri" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Sat" />
+                    <TextView style="@style/CalendarDayLabel" android:text="Sun" />
+
+                    <!-- Day numbers will be added programmatically here -->
+                </GridLayout>
+
+                <!-- Tasks List -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="80dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_calendar_tasks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
+
+                    <TextView
+                        android:id="@+id/tv_empty_tasks"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:gravity="center"
+                        android:text="@string/empty_tasks_day"
+                        android:textColor="#999999"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_task"

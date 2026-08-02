@@ -57,6 +57,7 @@ class CalendarFragment : Fragment() {
         setMonthView()
         observeMonthTasks()
         observeTasksForSelectedDate()
+        setupSwipeRefresh()
 
         binding.btnPrevMonth.setOnClickListener {
             displayedMonthDate = displayedMonthDate.minusMonths(1)
@@ -74,6 +75,15 @@ class CalendarFragment : Fragment() {
             val dateMillis = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             val addTaskSheet = AddTaskSheetFragment.newInstance(dateMillis)
             addTaskSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            setMonthView()
+            observeMonthTasks()
+            observeTasksForSelectedDate()
+            binding.swipeRefresh.isRefreshing = false
         }
     }
 
@@ -120,6 +130,7 @@ class CalendarFragment : Fragment() {
             onDeleteClick = { task ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     database.tasksDao().delete(task)
+                    NotificationHelper.cancelTaskNotification(requireContext(), task.id)
                     Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
                 }
             },
@@ -127,6 +138,13 @@ class CalendarFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
+                    
+                    if (updatedTask.isCompleted) {
+                        NotificationHelper.cancelTaskNotification(requireContext(), task.id)
+                    } else {
+                        NotificationHelper.scheduleTaskNotification(requireContext(), updatedTask)
+                    }
+
                     val message = if (updatedTask.isCompleted) "Task completed" else "Task pending"
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }

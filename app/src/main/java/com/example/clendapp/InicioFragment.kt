@@ -1,6 +1,7 @@
 package com.example.clendapp
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
@@ -48,6 +49,38 @@ class InicioFragment : Fragment() {
         setupCalendar()
         setupRecyclerView()
         observeReminders()
+        setupNotesCard()
+        setupSwipeRefresh()
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            updateGreeting()
+            loadUserScores()
+            setupCalendar()
+            observeReminders()
+            setupNotesCard()
+            
+            // Finalizar animación después de un pequeño retraso
+            binding.swipeRefresh.isRefreshing = false
+        }
+    }
+
+    private fun setupNotesCard() {
+        binding.cardNotesResume.setOnClickListener {
+            val intent = Intent(requireContext(), MisNotas::class.java)
+            startActivity(intent)
+        }
+        
+        // Cargar conteo de notas
+        NoteManager.loadNotes(requireContext())
+        val count = NoteManager.getNotes().size
+        if (count > 1) {
+            binding.tvNotesCount.text = count.toString()
+            binding.tvNotesCount.visibility = View.VISIBLE
+        } else {
+            binding.tvNotesCount.visibility = View.GONE
+        }
     }
 
     private fun loadUserScores() {
@@ -57,15 +90,16 @@ class InicioFragment : Fragment() {
         if (userId != -1) {
             val database = AppDatabase.getDatabase(requireContext())
             viewLifecycleOwner.lifecycleScope.launch {
-                val scores = database.scoresDao().getScoresByUserId(userId)
-                if (_binding == null) return@launch
-                
-                scores?.let {
-                    binding.tvResumeCalculator.text = "${it.calculator_score} points"
-                    binding.tvResumeStudy.text = "${it.study_score} points"
+                database.scoresDao().getScoresFlowByUserId(userId).collect { scores ->
+                    if (_binding == null) return@collect
                     
-                    val rank = database.ranksDao().getRankById(it.id_rank)
-                    binding.tvResumeRank.text = rank?.name ?: "Potato"
+                    scores?.let {
+                        binding.tvResumeCalculator.text = "${it.calculator_score} points"
+                        binding.tvResumeStudy.text = "${it.study_score} points"
+                        
+                        val rank = database.ranksDao().getRankById(it.id_rank)
+                        binding.tvResumeRank.text = rank?.name ?: "Potato"
+                    }
                 }
             }
         }

@@ -230,11 +230,16 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
         )
 
         lifecycleScope.launch {
-            if (editingTaskId == null) {
-                database.tasksDao().insert(newTask)
+            val taskId = if (editingTaskId == null) {
+                database.tasksDao().insert(newTask).toInt()
             } else {
                 database.tasksDao().update(newTask)
+                editingTaskId!!
             }
+            
+            // Schedule notification
+            NotificationHelper.scheduleTaskNotification(requireContext(), newTask.copy(id = taskId))
+
             Toast.makeText(requireContext(), if (editingTaskId == null) "Task created successfully" else "Task updated successfully", Toast.LENGTH_SHORT).show()
             dismiss()
         }

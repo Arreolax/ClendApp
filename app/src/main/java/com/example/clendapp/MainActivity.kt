@@ -30,12 +30,18 @@ class MainActivity : AppCompatActivity() {
         database = AppDatabase.getDatabase(this)
         loadUserData()
         updateLateTasksStatus()
+        NotificationHelper.createNotificationChannel(this)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
         binding.bottomNavigation.setupWithNavController(navController)
+
+        // Manejar navegación desde extras (notificaciones, etc)
+        if (intent.getBooleanExtra("OPEN_TASKS", false)) {
+            binding.bottomNavigation.selectedItemId = R.id.nav_check
+        }
 
         // Manejar el clic en nav_menu para abrir el menú lateral derecho
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -148,5 +154,13 @@ class MainActivity : AppCompatActivity() {
     private fun closeDrawerAndNavigate() {
         binding.drawerLayout.closeDrawer(GravityCompat.END)
         // Aquí se puede añadir la lógica de navegación
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra("OPEN_TASKS", false)) {
+            binding.bottomNavigation.selectedItemId = R.id.nav_check
+        }
     }
 }
