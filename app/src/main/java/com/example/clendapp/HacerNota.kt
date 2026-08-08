@@ -60,7 +60,7 @@ class HacerNota : AppCompatActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this) {
-            handleSave()
+            handleSave(isManualClick = false)
         }
 
         updateListModeUI()
@@ -70,7 +70,11 @@ class HacerNota : AppCompatActivity() {
 
     private fun setupListeners() {
         findViewById<View>(R.id.btn_back).setOnClickListener {
-            handleSave()
+            handleSave(isManualClick = false)
+        }
+
+        findViewById<View>(R.id.btn_guardar).setOnClickListener {
+            handleSave(isManualClick = true)
         }
 
         etCuerpo.addTextChangedListener(object : TextWatcher {
@@ -122,16 +126,17 @@ class HacerNota : AppCompatActivity() {
         tvContador.text = etCuerpo.text.length.toString()
     }
 
-    private fun handleSave() {
+    private fun handleSave(isManualClick: Boolean) {
         val title = etTitulo.text.toString().trim()
         val content = etCuerpo.text.toString().trim()
 
         if (currentNote != null) {
             // Existing notes: Save automatically
             saveNote(currentNote!!.folder)
+            Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show()
             finish()
         } else {
-            // New notes: Only prompt if BOTH are filled (per user request)
+            // New notes
             val contentValue = if (isListMode && content.startsWith("★")) {
                 content.replace("★", "").trim()
             } else {
@@ -142,8 +147,15 @@ class HacerNota : AppCompatActivity() {
                 // If both are filled, ask where to save
                 showSaveModal()
             } else {
-                // If either is empty, just close and don't save
-                finish()
+                if (isManualClick) {
+                    if (title.isEmpty()) {
+                        Toast.makeText(this, "Please add a title", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Please add content", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    finish()
+                }
             }
         }
     }
@@ -194,12 +206,13 @@ class HacerNota : AppCompatActivity() {
         dialogView.findViewById<View>(R.id.btn_guardar).setOnClickListener {
             saveNote(selectedFolder)
             dialog.dismiss()
+            Toast.makeText(this, "Note saved in $selectedFolder", Toast.LENGTH_SHORT).show()
             finish()
         }
 
         dialogView.findViewById<View>(R.id.btn_agregar_carpeta).setOnClickListener {
             val et = dialogView.findViewById<EditText>(R.id.et_nueva_carpeta)
-            val newFolder = et.text.toString()
+            val newFolder = et.text.toString().trim()
             if (newFolder.isNotEmpty()) {
                 NoteManager.addFolder(this, newFolder)
                 selectedFolder = newFolder

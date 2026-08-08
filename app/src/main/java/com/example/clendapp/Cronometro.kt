@@ -2,9 +2,13 @@ package com.example.clendapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,7 +31,7 @@ class Cronometro : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0) // No padding bottom because of NavView
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
 
@@ -90,26 +94,61 @@ class Cronometro : AppCompatActivity() {
         findViewById<Button>(R.id.btn_start).setOnClickListener {
             val totalMillis = ((hours * 3600L) + (minutes * 60L) + seconds) * 1000L
             if (totalMillis > 0) {
-                val layouts = listOf(
-                    R.layout.activity_prueba,
-                    R.layout.fondo2,
-                    R.layout.fondo3,
-                    R.layout.fondo4
-                )
-                val randomLayout = layouts.random()
-
-                val intent = Intent(this, prueba::class.java)
-                intent.putExtra("TOTAL_TIME_MILLIS", totalMillis)
-                intent.putExtra("LAYOUT_RES_ID", randomLayout)
-                startActivity(intent)
+                showConfirmationDialog(totalMillis)
+            } else {
+                Toast.makeText(this, "Please set a time", Toast.LENGTH_SHORT).show()
             }
         }
 
-        findViewById<Button>(R.id.btn_volver).setOnClickListener {
+        findViewById<TextView>(R.id.btn_back).setOnClickListener {
             finish()
         }
 
         setupBottomNavigation()
+    }
+
+    private fun showConfirmationDialog(totalMillis: Long) {
+        try {
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_confirm_start, null)
+            val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create()
+
+            dialogView.findViewById<TextView>(R.id.btn_start_accept).setOnClickListener {
+                dialog.dismiss()
+                startStudySession(totalMillis)
+            }
+
+            dialogView.findViewById<TextView>(R.id.btn_start_cancel).setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+            
+            dialog.window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.9).toInt(),
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+        } catch (e: Exception) {
+            // Fallback if dialog fails
+            startStudySession(totalMillis)
+        }
+    }
+
+    private fun startStudySession(totalMillis: Long) {
+        val layouts = listOf(
+            R.layout.activity_prueba,
+            R.layout.fondo2,
+            R.layout.fondo3,
+            R.layout.fondo4
+        )
+        val randomLayout = layouts.random()
+
+        val intent = Intent(this, prueba::class.java)
+        intent.putExtra("TOTAL_TIME_MILLIS", totalMillis)
+        intent.putExtra("LAYOUT_RES_ID", randomLayout)
+        startActivity(intent)
     }
 
     private fun setupBottomNavigation() {

@@ -13,6 +13,7 @@
         android:id="@+id/btn_back"
         android:layout_width="15dp"
         android:layout_height="50dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="8dp"
         android:text="‹"
         android:textColor="#6C63FF"
@@ -57,8 +58,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_nueva_nota"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="356dp"
+        android:layout_height="74dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/bg_input_nota"
         android:padding="16dp"
@@ -111,8 +112,8 @@
 
     <ScrollView
         android:id="@+id/scroll_notas"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="351dp"
+        android:layout_height="514dp"
         android:layout_marginTop="20dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
