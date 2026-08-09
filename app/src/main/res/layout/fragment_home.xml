@@ -216,6 +216,7 @@
 
                 <!-- Rank Info - Centered Below -->
                 <LinearLayout
+                    android:id="@+id/card_rank"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -223,7 +224,9 @@
                     android:layout_marginTop="16dp"
                     android:padding="12dp"
                     android:background="@drawable/bg_pill"
-                    android:backgroundTint="@color/bg_gray">
+                    android:backgroundTint="@color/bg_gray"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -236,7 +239,7 @@
                         android:id="@+id/tv_resume_rank"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Potato"
+                        android:text="Papita"
                         android:textColor="@color/primary"
                         android:textStyle="bold"
                         android:textSize="18sp"

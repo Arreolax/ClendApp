@@ -24,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Scores
+import com.example.clendapp.data.StreakManager
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.min
@@ -65,7 +66,7 @@ class prueba : AppCompatActivity() {
                 Toast.makeText(this@prueba, "Study mode active: You cannot leave", Toast.LENGTH_SHORT).show()
             } else {
                 if (!isServiceStarted) {
-                    finish() 
+                    finish()
                 } else {
                     moveTaskToBack(true)
                 }
@@ -93,7 +94,7 @@ class prueba : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
         chronometerView = findViewById(R.id.chronometer_prueba)
         chronometerView.text = "00:00:00"
-        
+
         volumeToggle = findViewById(R.id.btn_volume_toggle)
         volumeToggle.setOnClickListener {
             val toggleIntent = Intent(this, BackgroundService::class.java)
@@ -114,11 +115,11 @@ class prueba : AppCompatActivity() {
     private fun showFinishModal() {
         unlockApp()
         val totalTimeMillis = intent.getLongExtra("TOTAL_TIME_MILLIS", 0)
-        
+
         val fullCycles = totalTimeMillis / 40000
         val remainder = totalTimeMillis % 40000
         val studyMillis = (fullCycles * 30000) + min(remainder, 30000)
-        
+
         val totalSeconds = studyMillis / 1000
         val h = totalSeconds / 3600
         val m = (totalSeconds % 3600) / 60
@@ -133,9 +134,9 @@ class prueba : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Session Finished!"
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Congratulations on completing your session.\n\nReal study time: $studyTimeFormatted"
-        
+
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Accept"
-        
+
         // Update database with study points and total seconds
         updateStudyScore(studyMillis, totalTimeMillis)
 
@@ -157,16 +158,29 @@ class prueba : AppCompatActivity() {
     private fun updateStudyScore(studyMillis: Long, totalMillis: Long) {
         val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
-        
+
         if (userId != -1) {
-            val studyPoints = (studyMillis / 60000).toInt() // 1 point per minute
+            val studyMinutes = (studyMillis / 60000).toInt()
+            // Nueva regla: Mínimo 15 min para obtener puntos
+            val studyPoints = if (studyMinutes >= 15) {
+                studyMinutes * 3
+            } else {
+                0
+            }
+
             val totalSeconds = (totalMillis / 1000).toInt()
-            
-            if (studyPoints <= 0 && totalSeconds <= 0) return
 
             val database = AppDatabase.getDatabase(this)
             lifecycleScope.launch {
                 val currentScores = database.scoresDao().getScoresByUserId(userId)
+                
+                // Llamar a StreakManager con puntos personalizados si hay puntos
+                val streakPoints = StreakManager.completeActivity(this@prueba, if (studyPoints > 0) studyPoints else null)
+                
+                if (studyPoints > 0) {
+                    Toast.makeText(this@prueba, getString(R.string.points_congrats_study, studyPoints), Toast.LENGTH_SHORT).show()
+                }
+
                 if (currentScores != null) {
                     val updatedScores = currentScores.copy(
                         study_score = currentScores.study_score + studyPoints,
@@ -175,7 +189,7 @@ class prueba : AppCompatActivity() {
                     database.scoresDao().updateScores(updatedScores)
                 } else {
                     val newScores = Scores(
-                        id_user = userId, 
+                        id_user = userId,
                         study_score = studyPoints,
                         study_time_sec = totalSeconds
                     )
@@ -196,8 +210,8 @@ class prueba : AppCompatActivity() {
     private fun checkOverlayPermissionAndStart() {
         if (!Settings.canDrawOverlays(this)) {
             isLockedState = false
-            backPressedCallback.isEnabled = false 
-            
+            backPressedCallback.isEnabled = false
+
             val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
             val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
                 .setView(dialogView)
@@ -209,7 +223,7 @@ class prueba : AppCompatActivity() {
                 text = "To enable study mode and auto-return after breaks, please activate 'Display over other apps'."
                 textSize = 18f // Un poco más grande para mejor lectura
             }
-            
+
             dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Configure"
             dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
                 dialog.dismiss()
@@ -237,7 +251,7 @@ class prueba : AppCompatActivity() {
 
     private fun startStudyService() {
         if (isServiceStarted) return
-        
+
         val totalTime = intent.getLongExtra("TOTAL_TIME_MILLIS", 0)
         if (totalTime > 0) {
             val serviceIntent = Intent(this, BackgroundService::class.java)
@@ -248,7 +262,7 @@ class prueba : AppCompatActivity() {
                 startService(serviceIntent)
             }
             isServiceStarted = true
-            lockApp() 
+            lockApp()
         }
     }
 

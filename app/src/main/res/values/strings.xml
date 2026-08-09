@@ -5,7 +5,7 @@
     <string name="menu_logout">Log Out</string>
     <string name="menu_notes">Notes</string>
     <string name="menu_calculator">Calculator</string>
-    <string name="menu_unknown">\?\?\?</string>
+    <string name="menu_streak">Streak</string>
     <string name="menu_ranking">Rankings</string>
     <string name="menu_premium">Premium</string>
     <string name="menu_support">Customer Support</string>
@@ -21,4 +21,29 @@
     <string name="delete">Delete</string>
     <string name="no_tasks_recorded">No tasks recorded.</string>
     <string name="enter_first_tasks">Enter your first tasks!</string>
+
+    <!-- Streak Strings -->
+    <string name="streak_title">%1$d Day Streak!</string>
+    <string name="rank_status">%1$s Rank!</string>
+    <string name="congrats_unlock">Congratulations! You have unlocked a new song for your study.</string>
+    <string name="keep_it_up">Keep it up!</string>
+    <string name="rank_info_desc">And your rank will allow you to unlock new customizations and features.</string>
+    <string name="bonus_title">BONUS!</string>
+    <string name="bonus_desc">Get at least 30 points in the next two days and you will unlock more songs early.</string>
+
+    <!-- Settings Strings -->
+    <string name="settings_title">Settings</string>
+    <string name="customization">Customization</string>
+    <string name="background_music">Background Music</string>
+    <string name="music_unlock_hint">Unlock 30 streak points to get Vivaldi\'s theme.</string>
+    <string name="music_all_unlocked">All music themes unlocked!</string>
+    <string name="music_updated">Music updated</string>
+
+    <!-- Reward Strings -->
+    <string name="reward_new">NEW!</string>
+
+    <!-- Point Feedback -->
+    <string name="points_congrats_generic">Congratulations! You got %1$d points for completing the activity</string>
+    <string name="points_congrats_study">Congratulations! You got %1$d points for your study session</string>
+    <string name="points_congrats_game">Congratulations! You got %1$d points for completing the game</string>
 </resources>

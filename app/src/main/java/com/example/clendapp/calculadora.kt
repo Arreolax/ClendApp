@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Scores
+import com.example.clendapp.data.StreakManager
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -218,7 +219,7 @@ class calculadora : AppCompatActivity() {
         try {
             val userResult = actualExpression.replace(",", ".").toDouble()
             countDownTimer?.cancel()
-            
+
             if (userResult == targetResult) {
                 score++
                 tvScore.text = "Score: $score"
@@ -236,6 +237,12 @@ class calculadora : AppCompatActivity() {
     }
 
     private fun showGameOverModal(finalScore: Int, title: String = "Incorrect") {
+        lifecycleScope.launch {
+            val points = StreakManager.completeActivity(this@calculadora, finalScore)
+            if (points > 0) {
+                Toast.makeText(this@calculadora, getString(R.string.points_congrats_game, points), Toast.LENGTH_SHORT).show()
+            }
+        }
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
         val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
             .setCancelable(false)
@@ -244,10 +251,10 @@ class calculadora : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = title
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Game Over\nYour score is: $finalScore"
-        
+
         val btnRetry = dialogView.findViewById<TextView>(R.id.btn_dialog_accept)
         val btnExit = dialogView.findViewById<TextView>(R.id.btn_dialog_cancel)
-        
+
         btnRetry.text = "Retry"
         btnExit.text = "Exit"
         btnExit.visibility = View.VISIBLE
@@ -280,7 +287,7 @@ class calculadora : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = title
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = message
-        
+
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
             dialog.dismiss()
             onAccept()
@@ -303,10 +310,10 @@ class calculadora : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Exit Game"
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Are you sure you want to quit the game?"
-        
+
         val btnAccept = dialogView.findViewById<TextView>(R.id.btn_dialog_accept)
         val btnCancel = dialogView.findViewById<TextView>(R.id.btn_dialog_cancel)
-        
+
         btnAccept.text = "Exit"
         btnCancel.text = "Keep Playing"
         btnCancel.visibility = View.VISIBLE
@@ -330,6 +337,12 @@ class calculadora : AppCompatActivity() {
     }
 
     private fun showGoodbyeModal() {
+        lifecycleScope.launch {
+            val points = StreakManager.completeActivity(this@calculadora, score)
+            if (points > 0) {
+                Toast.makeText(this@calculadora, getString(R.string.points_congrats_game, points), Toast.LENGTH_SHORT).show()
+            }
+        }
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
         val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
             .setView(dialogView)
@@ -338,7 +351,7 @@ class calculadora : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "Goodbye!"
         dialogView.findViewById<TextView>(R.id.tv_dialog_message).text = "Thanks for playing!\nYour best score is: $bestScore"
-        
+
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
             dialog.dismiss()
             stopGame()
@@ -361,10 +374,10 @@ class calculadora : AppCompatActivity() {
             findViewById<Button>(id).setOnClickListener {
                 val btn = it as Button
                 val text = btn.text.toString()
-                
+
                 if (isGameMode) {
                     if (text == "." && actualExpression.contains(".")) return@setOnClickListener
-                    
+
                     if (actualExpression == "0") actualExpression = ""
                     actualExpression += text
                     tvResultado.text = actualExpression

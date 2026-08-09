@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.StreakManager
 import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.FragmentTasksBinding
 import com.google.android.material.tabs.TabLayout
@@ -35,7 +36,7 @@ class TasksFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         setupRecyclerView()
         setupTabs()
         setupSortButton()
@@ -89,8 +90,12 @@ class TasksFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     val updatedTask = task.copy(isCompleted = !task.isCompleted)
                     database.tasksDao().update(updatedTask)
-                    
+
                     if (updatedTask.isCompleted) {
+                        val points = StreakManager.completeActivity(requireContext())
+                        if (points > 0) {
+                            Toast.makeText(requireContext(), getString(R.string.points_congrats_generic, points), Toast.LENGTH_SHORT).show()
+                        }
                         NotificationHelper.cancelTaskNotification(requireContext(), task.id)
                     } else {
                         NotificationHelper.scheduleTaskNotification(requireContext(), updatedTask)
@@ -120,7 +125,7 @@ class TasksFragment : Fragment() {
     private fun observeTasks() {
         val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val loggedInUserId = sharedPref.getInt("user_id", -1)
-        
+
         if (loggedInUserId == -1) return
 
         val database = AppDatabase.getDatabase(requireContext())

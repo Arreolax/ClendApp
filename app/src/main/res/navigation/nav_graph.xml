@@ -37,4 +37,10 @@
         android:label="Ranking"
         tools:layout="@layout/fragment_ranking" />
 
+    <fragment
+        android:id="@+id/nav_racha"
+        android:name="com.example.clendapp.RachaFragment"
+        android:label="Racha"
+        tools:layout="@layout/fragment_racha" />
+
 </navigation>

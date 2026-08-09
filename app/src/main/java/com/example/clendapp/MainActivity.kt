@@ -51,6 +51,13 @@ class MainActivity : AppCompatActivity() {
                     binding.drawerLayout.openDrawer(GravityCompat.END)
                     false
                 }
+                R.id.nav_home -> {
+                    // Si el usuario presiona Home, nos aseguramos de limpiar el stack hasta el inicio
+                    if (navController.currentDestination?.id != R.id.nav_home) {
+                        navController.popBackStack(R.id.nav_home, false)
+                    }
+                    true
+                }
                 else -> {
                     // Usar NavigationUI para manejar el resto de los items (Home, Calendar, etc.)
                     // Esto asegura que la navegación sea consistente con setupWithNavController
@@ -119,8 +126,9 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, calculadora::class.java)
             startActivity(intent)
         }
-        binding.btnUnknown.setOnClickListener {
-            closeDrawerAndNavigate()
+        binding.btnStreak.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            navController.navigate(R.id.nav_racha)
         }
         binding.btnRanking.setOnClickListener {
             binding.drawerLayout.closeDrawer(GravityCompat.END)
@@ -133,7 +141,9 @@ class MainActivity : AppCompatActivity() {
             closeDrawerAndNavigate()
         }
         binding.btnAjustes.setOnClickListener {
-            closeDrawerAndNavigate()
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            val intent = Intent(this, AjustesActivity::class.java)
+            startActivity(intent)
         }
         binding.btnLogout.setOnClickListener {
             logout()

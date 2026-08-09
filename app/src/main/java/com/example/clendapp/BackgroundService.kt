@@ -31,7 +31,17 @@ class BackgroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        mediaPlayer = MediaPlayer.create(this, R.raw.subwooferlullaby)
+
+        val sharedPref = getSharedPreferences("clend_app_prefs", android.content.Context.MODE_PRIVATE)
+        val selectedMusic = sharedPref.getString("selected_music", "subwooferlullaby")
+        val musicResId = when (selectedMusic) {
+            "smetana" -> R.raw.smetana
+            "vivaldi" -> R.raw.vivaldi
+            "cuteringtone2" -> R.raw.cuteringtone2
+            else -> R.raw.subwooferlullaby
+        }
+
+        mediaPlayer = MediaPlayer.create(this, musicResId)
         mediaPlayer?.isLooping = true
         
         ringtonePlayer = MediaPlayer.create(this, R.raw.cuteringtone2)

@@ -10,5 +10,9 @@ data class Scores(
     val calculator_score: Int = 0,
     val study_score: Int = 0,
     val study_time_sec: Int = 0,
-    val id_rank: Int = 1
+    val id_rank: Int = 1,
+    val streak_count: Int = 0,
+    val last_activity_date: Long = 0,
+    val weekly_bits: Int = 0,
+    val music_unlocked: Boolean = false
 )
