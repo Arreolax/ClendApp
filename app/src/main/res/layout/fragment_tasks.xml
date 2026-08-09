@@ -50,7 +50,7 @@
                 android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="1dp"
                 android:background="@android:color/transparent"
                 app:tabIndicatorColor="#7C4DFF"
                 app:tabSelectedTextColor="#7C4DFF"
@@ -72,11 +72,13 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_tasks"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:clipToPadding="false"
                 android:layout_marginTop="8dp"
                 android:paddingBottom="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
@@ -120,5 +122,18 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/app_name"
+        app:backgroundTint="#7C4DFF"
+        app:fabCustomSize="64dp"
+        app:tint="#FFFFFF"
+        app:elevation="8dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

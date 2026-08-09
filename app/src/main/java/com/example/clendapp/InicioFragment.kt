@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -215,9 +216,9 @@ class InicioFragment : Fragment() {
                         weight = 1.2f
                     }
                     tvDayNum?.textSize = 22f
-                    tvDayNum?.setTextColor(Color.parseColor("#6B9CFF"))
+                    tvDayNum?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     tvDayName?.textSize = 14f
-                    tvDayName?.setTextColor(Color.parseColor("#6B9CFF"))
+                    tvDayName?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 } else {
                     dayContainer.background = null
                     dayContainer.layoutParams = (dayContainer.layoutParams as LinearLayout.LayoutParams).apply {
@@ -225,9 +226,9 @@ class InicioFragment : Fragment() {
                         weight = 1.0f
                     }
                     tvDayNum?.textSize = 18f
-                    tvDayNum?.setTextColor(Color.parseColor("#2A2A2A"))
+                    tvDayNum?.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_dark))
                     tvDayName?.textSize = 12f
-                    tvDayName?.setTextColor(Color.parseColor("#999999"))
+                    tvDayName?.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_light))
                 }
             }
             calendar.add(Calendar.DAY_OF_YEAR, 1)
@@ -258,15 +259,15 @@ class InicioFragment : Fragment() {
                 dot.layoutParams = dotParams
                 
                 val currentTask = tasksForDay[j]
-                val colorHex = when (currentTask.id_category) {
-                    1 -> "#673AB7" // Purple
-                    2 -> "#4CAF50" // Green
-                    else -> "#2196F3" // Blue
+                val colorRes = when (currentTask.id_category) {
+                    1 -> R.color.cat_purple
+                    2 -> R.color.cat_green
+                    else -> R.color.cat_blue
                 }
                 
                 val shape = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
-                    setColor(android.graphics.Color.parseColor(colorHex))
+                    setColor(ContextCompat.getColor(requireContext(), colorRes))
                 }
                 dot.background = shape
                 layoutDots?.addView(dot)

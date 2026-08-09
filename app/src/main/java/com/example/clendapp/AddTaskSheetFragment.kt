@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Categories
 import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.BottomSheetAddTaskBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -57,6 +58,7 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
 
         setupDateTimePickers()
         setupCategorySelection()
+        setupAddCategoryLogic()
         
         if (editingTaskId != null) {
             loadTaskData(editingTaskId!!)
@@ -145,8 +147,14 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
 
     private fun setupCategorySelection() {
         val database = AppDatabase.getDatabase(requireContext())
+        
+        // Obtener el ID del usuario logeado
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+
         lifecycleScope.launch {
-            val categories = database.categoriesDao().getAll()
+            // Mostrar categorías generales (id_user = 0) y las del usuario actual desde la DB
+            val categories = database.categoriesDao().getCategoriesForUser(loggedInUserId)
             binding.layoutCategories.removeAllViews()
             
             categories.forEach { category ->
@@ -158,7 +166,7 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 
                 // Color y fondo según el ID
                 val (bgRes, colorHex) = when (category.id % 3) {
-                    1 -> Pair(R.drawable.bg_category_purple, "#673AB7")
+                    1 -> Pair(R.drawable.bg_category_purple, "#000000")
                     2 -> Pair(R.drawable.bg_category_green, "#4CAF50")
                     else -> Pair(R.drawable.bg_category_blue, "#2196F3")
                 }
@@ -180,6 +188,43 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 }
                 
                 binding.layoutCategories.addView(categoryView)
+            }
+        }
+    }
+
+    private fun setupAddCategoryLogic() {
+        binding.btnAddCategory.setOnClickListener {
+            binding.layoutAddCategory.visibility = View.VISIBLE
+            binding.btnAddCategory.visibility = View.GONE
+        }
+
+        binding.btnSaveCategory.setOnClickListener {
+            val categoryName = binding.etNewCategoryName.text.toString().trim()
+            if (categoryName.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a category name", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+            val userId = sharedPref.getInt("user_id", -1)
+
+            if (userId != -1) {
+                val database = AppDatabase.getDatabase(requireContext())
+                lifecycleScope.launch {
+                    val newCategory = Categories(name = categoryName, id_user = userId)
+                    val newId = database.categoriesDao().insert(newCategory)
+                    
+                    selectedCategory = newId.toInt()
+                    
+                    // Reset UI
+                    binding.etNewCategoryName.setText("")
+                    binding.layoutAddCategory.visibility = View.GONE
+                    binding.btnAddCategory.visibility = View.VISIBLE
+                    
+                    // Refresh categories list
+                    setupCategorySelection()
+                    Toast.makeText(requireContext(), "Category added and selected", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

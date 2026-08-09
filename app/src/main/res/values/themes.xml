@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ClendApp" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">#7C4DFF</item>
+        <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/white</item>
     </style>
 
@@ -13,7 +13,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_columnWeight">1</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">#999999</item>
+        <item name="android:textColor">@color/text_light</item>
         <item name="android:textSize">12sp</item>
         <item name="android:paddingVertical">8dp</item>
     </style>
@@ -23,16 +23,16 @@
         <item name="android:layout_height">48dp</item>
         <item name="android:layout_columnWeight">1</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">#2A2A2A</item>
+        <item name="android:textColor">@color/text_dark</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="CalendarDayNumberMuted" parent="CalendarDayNumber">
-        <item name="android:textColor">#CCCCCC</item>
+        <item name="android:textColor">@color/text_muted</item>
     </style>
 
     <style name="CalendarDayNumberActive" parent="CalendarDayNumber">
-        <item name="android:textColor">#6B9CFF</item>
+        <item name="android:textColor">@color/info</item>
         <item name="android:textStyle">bold</item>
     </style>
 

@@ -114,19 +114,37 @@
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:text="Select Category"
-        android:textColor="#2A2A2A"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="Select Category"
+            android:textColor="#2A2A2A"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btn_add_category"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_add"
+            app:tint="#7C4DFF"
+            android:contentDescription="@string/app_name" />
+    </RelativeLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -137,6 +155,37 @@
             <!-- Categories will be added here dynamically -->
         </LinearLayout>
     </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_add_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_new_category_name"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_field"
+            android:hint="Category name"
+            android:paddingHorizontal="16dp"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_category"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            app:icon="@drawable/ic_check"
+            app:iconTint="@color/white"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_create_task"

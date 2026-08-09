@@ -9,5 +9,6 @@ data class Scores(
     val id_user: Int,
     val calculator_score: Int = 0,
     val study_score: Int = 0,
+    val study_time_sec: Int = 0,
     val id_rank: Int = 1
 )

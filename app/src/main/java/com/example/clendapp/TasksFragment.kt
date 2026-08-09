@@ -39,8 +39,16 @@ class TasksFragment : Fragment() {
         setupRecyclerView()
         setupTabs()
         setupSortButton()
+        setupAddTaskButton()
         observeTasks()
         setupSwipeRefresh()
+    }
+
+    private fun setupAddTaskButton() {
+        binding.fabAddTask.setOnClickListener {
+            val addSheet = AddTaskSheetFragment.newInstance(System.currentTimeMillis())
+            addSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -123,8 +131,26 @@ class TasksFragment : Fragment() {
             database.tasksDao().getAllTasks(loggedInUserId).collect { tasks ->
                 if (_binding == null) return@collect
                 allTasks = tasks
+                updateTabTitles()
                 filterAndSubmitTasks()
             }
+        }
+    }
+
+    private fun updateTabTitles() {
+        val pendingCount = allTasks.count { !it.isCompleted }
+        val completedCount = allTasks.count { it.isCompleted }
+
+        binding.tabLayout.getTabAt(0)?.text = if (pendingCount > 0) {
+            "Pending ($pendingCount)"
+        } else {
+            "Pending"
+        }
+
+        binding.tabLayout.getTabAt(1)?.text = if (completedCount > 0) {
+            "Completed ($completedCount)"
+        } else {
+            "Completed"
         }
     }
 

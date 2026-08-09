@@ -2,6 +2,7 @@ package com.example.clendapp
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Tasks
@@ -129,32 +130,33 @@ class TasksAdapter(
 
     inner class TaskViewHolder(private val binding: ItemTaskCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(task: Tasks) {
+            val context = binding.root.context
             val isLate = task.late && !task.isCompleted
             
             binding.tvTaskTitle.text = task.title
-            binding.tvTaskTitle.setTextColor(android.graphics.Color.parseColor("#2A2A2A"))
+            binding.tvTaskTitle.setTextColor(ContextCompat.getColor(context, R.color.text_dark))
 
             when {
                 task.isCompleted -> {
                     binding.root.setBackgroundResource(R.drawable.bg_section_outline_completed)
-                    binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#00C853"))
+                    binding.tvTaskTime.setTextColor(ContextCompat.getColor(context, R.color.success))
                     binding.ivStatusIcon.visibility = android.view.View.VISIBLE
                     binding.ivStatusIcon.setImageResource(R.drawable.ic_check)
-                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#00C853"))
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.success))
                 }
                 isLate -> {
                     binding.root.setBackgroundResource(R.drawable.bg_section_outline_late)
-                    binding.tvTaskTime.setTextColor(android.graphics.Color.RED)
+                    binding.tvTaskTime.setTextColor(ContextCompat.getColor(context, R.color.late))
                     binding.ivStatusIcon.visibility = android.view.View.VISIBLE
                     binding.ivStatusIcon.setImageResource(R.drawable.ic_error)
-                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.RED)
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.late))
                 }
                 else -> {
                     binding.root.setBackgroundResource(R.drawable.bg_section_outline)
-                    binding.tvTaskTime.setTextColor(android.graphics.Color.parseColor("#999999"))
+                    binding.tvTaskTime.setTextColor(ContextCompat.getColor(context, R.color.text_light))
                     binding.ivStatusIcon.visibility = android.view.View.VISIBLE
                     binding.ivStatusIcon.setImageResource(R.drawable.ic_clock)
-                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#999999"))
+                    binding.ivStatusIcon.imageTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.text_light))
                 }
             }
 
@@ -208,12 +210,12 @@ class TasksAdapter(
                 popup.show()
             }
             
-            val color = when (task.id_category) {
-                1 -> "#673AB7" // Purple
-                2 -> "#4CAF50" // Green
-                else -> "#2196F3" // Blue
+            val colorRes = when (task.id_category) {
+                1 -> R.color.cat_purple
+                2 -> R.color.cat_green
+                else -> R.color.cat_blue
             }
-            binding.viewCategoryIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(color))
+            binding.viewCategoryIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, colorRes))
         }
     }
 

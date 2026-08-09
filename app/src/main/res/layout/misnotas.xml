@@ -5,20 +5,20 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F7FB"
-    android:padding="16dp"
+    android:background="@color/bg_screen"
+    android:padding="24dp"
     tools:context=".MisNotas">
 
     <TextView
         android:id="@+id/btn_back"
-        android:layout_width="15dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="‹"
-        android:textColor="#6C63FF"
+        android:textColor="@color/primary_light"
         android:textSize="48sp"
         android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,16 +26,16 @@
         android:id="@+id/tv_titulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:fontFamily="@font/hey_comic"
         android:text="My Notes"
-        android:textColor="#6C63FF"
-        android:textSize="20sp"
+        android:textColor="@color/primary_light"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/btn_back"
         app:layout_constraintStart_toEndOf="@+id/btn_back"
         app:layout_constraintTop_toTopOf="@+id/btn_back"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.72" />
 
     <HorizontalScrollView
         android:id="@+id/scroll_categorias"
@@ -51,15 +51,16 @@
             android:id="@+id/container_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingVertical="8dp">
             <!-- Dynamic tags here -->
         </LinearLayout>
     </HorizontalScrollView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_nueva_nota"
-        android:layout_width="356dp"
-        android:layout_height="74dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@drawable/bg_input_nota"
         android:padding="16dp"
@@ -73,10 +74,10 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/hey_comic"
             android:text="New Note"
-            android:textColor="#1A1A2E"
+            android:textColor="@color/text_dark"
             android:textSize="15sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -87,34 +88,42 @@
             android:layout_marginTop="6dp"
             android:background="@android:color/transparent"
             android:hint="Start writing..."
-            android:textColor="#1A1A2E"
-            android:textColorHint="#B5B5C0"
+            android:textColor="@color/text_dark"
+            android:textColorHint="@color/text_light"
             android:textSize="13sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_nueva_nota_titulo" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.85" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/btn_agregar"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginEnd="12dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/bg_fab_circle"
         android:gravity="center"
         android:text="+"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/card_nueva_nota"
         app:layout_constraintEnd_toEndOf="@+id/card_nueva_nota"
-        app:layout_constraintTop_toTopOf="@+id/card_nueva_nota"
-        app:layout_constraintVertical_bias="1" />
+        app:layout_constraintTop_toTopOf="@+id/card_nueva_nota" />
 
     <ScrollView
         android:id="@+id/scroll_notas"
-        android:layout_width="351dp"
-        android:layout_height="514dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -125,9 +134,9 @@
             android:id="@+id/container_notas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
+            android:orientation="vertical"
+            android:paddingBottom="80dp">
+            <!-- Dynamic notes here -->
         </LinearLayout>
     </ScrollView>
 

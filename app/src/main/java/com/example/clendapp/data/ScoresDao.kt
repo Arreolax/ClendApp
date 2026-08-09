@@ -15,6 +15,12 @@ interface ScoresDao {
     @Query("SELECT * FROM scores WHERE id_user = :userId LIMIT 1")
     fun getScoresFlowByUserId(userId: Int): Flow<Scores?>
 
+    @Query("SELECT * FROM scores ORDER BY calculator_score DESC")
+    fun getAllScoresByCalculator(): Flow<List<Scores>>
+
+    @Query("SELECT * FROM scores ORDER BY study_score DESC")
+    fun getAllScoresByStudy(): Flow<List<Scores>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertScores(scores: Scores): Long
 

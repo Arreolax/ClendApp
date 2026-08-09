@@ -161,7 +161,7 @@
         android:layout_margin="24dp"
         android:src="@drawable/ic_add"
         android:contentDescription="@string/app_name"
-        app:backgroundTint="#6B9CFF"
+        app:backgroundTint="#7C4DFF"
         app:fabCustomSize="64dp"
         app:tint="#FFFFFF"
         app:elevation="8dp" />

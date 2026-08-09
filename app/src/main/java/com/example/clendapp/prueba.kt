@@ -136,8 +136,8 @@ class prueba : AppCompatActivity() {
         
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).text = "Accept"
         
-        // Update database with study points
-        updateStudyScore(studyMillis)
+        // Update database with study points and total seconds
+        updateStudyScore(studyMillis, totalTimeMillis)
 
         dialogView.findViewById<TextView>(R.id.btn_dialog_accept).setOnClickListener {
             dialog.dismiss()
@@ -154,24 +154,31 @@ class prueba : AppCompatActivity() {
         )
     }
 
-    private fun updateStudyScore(studyMillis: Long) {
+    private fun updateStudyScore(studyMillis: Long, totalMillis: Long) {
         val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
         
         if (userId != -1) {
             val studyPoints = (studyMillis / 60000).toInt() // 1 point per minute
-            if (studyPoints <= 0) return
+            val totalSeconds = (totalMillis / 1000).toInt()
+            
+            if (studyPoints <= 0 && totalSeconds <= 0) return
 
             val database = AppDatabase.getDatabase(this)
             lifecycleScope.launch {
                 val currentScores = database.scoresDao().getScoresByUserId(userId)
                 if (currentScores != null) {
                     val updatedScores = currentScores.copy(
-                        study_score = currentScores.study_score + studyPoints
+                        study_score = currentScores.study_score + studyPoints,
+                        study_time_sec = currentScores.study_time_sec + totalSeconds
                     )
                     database.scoresDao().updateScores(updatedScores)
                 } else {
-                    val newScores = Scores(id_user = userId, study_score = studyPoints)
+                    val newScores = Scores(
+                        id_user = userId, 
+                        study_score = studyPoints,
+                        study_time_sec = totalSeconds
+                    )
                     database.scoresDao().insertScores(newScores)
                 }
             }

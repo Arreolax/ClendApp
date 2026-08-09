@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -28,7 +29,13 @@ class MisNotas : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val basePadding = (24 * resources.displayMetrics.density).toInt()
+            v.setPadding(
+                systemBars.left + basePadding,
+                systemBars.top + basePadding,
+                systemBars.right + basePadding,
+                systemBars.bottom + basePadding
+            )
             insets
         }
 
@@ -68,10 +75,10 @@ class MisNotas : AppCompatActivity() {
 
                 if (folderName == currentFolder) {
                     setBackgroundResource(R.drawable.bg_pill_categoria_selected)
-                    setTextColor(Color.WHITE)
+                    setTextColor(ContextCompat.getColor(context, R.color.white))
                 } else {
                     setBackgroundResource(R.drawable.bg_pill_categoria)
-                    setTextColor(Color.parseColor("#6B6B76"))
+                    setTextColor(ContextCompat.getColor(context, R.color.text_medium))
                 }
 
                 setOnClickListener {

@@ -31,4 +31,10 @@
         android:label="Cronometro"
         tools:layout="@layout/fragment_cronometro" />
 
+    <fragment
+        android:id="@+id/nav_ranking"
+        android:name="com.example.clendapp.RankingFragment"
+        android:label="Ranking"
+        tools:layout="@layout/fragment_ranking" />
+
 </navigation>

@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var database: AppDatabase
+    private lateinit var navController: androidx.navigation.NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
 
         binding.bottomNavigation.setupWithNavController(navController)
 
@@ -122,7 +123,8 @@ class MainActivity : AppCompatActivity() {
             closeDrawerAndNavigate()
         }
         binding.btnRanking.setOnClickListener {
-            closeDrawerAndNavigate()
+            binding.drawerLayout.closeDrawer(GravityCompat.END)
+            navController.navigate(R.id.nav_ranking)
         }
         binding.btnPremium.setOnClickListener {
             closeDrawerAndNavigate()

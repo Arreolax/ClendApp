@@ -13,6 +13,7 @@ import android.widget.GridLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -250,7 +251,7 @@ class CalendarFragment : Fragment() {
 
             if (isSelected) {
                 tvDayNumber.setBackgroundResource(R.drawable.bg_day_selected)
-                tvDayNumber.setTextColor(android.graphics.Color.BLACK)
+                tvDayNumber.setTextColor(ContextCompat.getColor(currentContext, R.color.black))
             } else if (isToday) {
                 tvDayNumber.setBackgroundResource(R.drawable.bg_day_active)
             }
@@ -267,15 +268,15 @@ class CalendarFragment : Fragment() {
                 dot.layoutParams = dotParams
                 
                 val currentTask = tasksForDay[j]
-                val colorHex = when (currentTask.id_category) {
-                    1 -> "#673AB7" // Purple
-                    2 -> "#4CAF50" // Green
-                    else -> "#2196F3" // Blue
+                val colorRes = when (currentTask.id_category) {
+                    1 -> R.color.cat_purple
+                    2 -> R.color.cat_green
+                    else -> R.color.cat_blue
                 }
                 
                 val shape = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
-                    setColor(android.graphics.Color.parseColor(colorHex))
+                    setColor(ContextCompat.getColor(currentContext, colorRes))
                 }
                 dot.background = shape
                 layoutDots.addView(dot)

@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -37,7 +38,13 @@ class HacerNota : AppCompatActivity() {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val basePadding = (24 * resources.displayMetrics.density).toInt()
+            v.setPadding(
+                systemBars.left + basePadding,
+                systemBars.top + basePadding,
+                systemBars.right + basePadding,
+                systemBars.bottom + basePadding
+            )
             insets
         }
 
@@ -106,8 +113,8 @@ class HacerNota : AppCompatActivity() {
     private fun updateListModeUI() {
         if (isListMode) {
             btnListMode.text = "★ List Mode: ON"
-            btnListMode.setTextColor(Color.parseColor("#7A4A00"))
-            etCuerpo.setTextColor(Color.BLACK)
+            btnListMode.setTextColor(ContextCompat.getColor(this, R.color.warning_dark))
+            etCuerpo.setTextColor(ContextCompat.getColor(this, R.color.black))
 
             // If starting a new list, add first star
             if (etCuerpo.text.isEmpty()) {
@@ -116,8 +123,8 @@ class HacerNota : AppCompatActivity() {
             }
         } else {
             btnListMode.text = "List Mode"
-            btnListMode.setTextColor(Color.parseColor("#6C63FF"))
-            etCuerpo.setTextColor(Color.parseColor("#3B78E7"))
+            btnListMode.setTextColor(ContextCompat.getColor(this, R.color.primary_light))
+            etCuerpo.setTextColor(ContextCompat.getColor(this, R.color.info_variant))
             cardCuerpo.setBackgroundResource(R.drawable.bg_card_nota)
         }
     }
@@ -186,10 +193,10 @@ class HacerNota : AppCompatActivity() {
 
                     if (folderName == selectedFolder) {
                         setBackgroundResource(R.drawable.bg_pill_categoria_selected)
-                        setTextColor(Color.WHITE)
+                        setTextColor(ContextCompat.getColor(context, R.color.white))
                     } else {
                         setBackgroundResource(R.drawable.bg_pill_opcion)
-                        setTextColor(Color.parseColor("#3A3A45"))
+                        setTextColor(ContextCompat.getColor(context, R.color.text_dark_variant))
                     }
 
                     setOnClickListener {

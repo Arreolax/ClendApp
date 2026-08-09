@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class],
-    version = 16,
+    version = 19,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -80,23 +80,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
 
             private fun insertDefaultRanks(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS ranks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL)")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Potato')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Brainiac')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Nerd')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Master')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('God')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Devil')")
-                db.execSQL("INSERT INTO ranks (name) VALUES ('Top Global')")
+                db.execSQL("CREATE TABLE IF NOT EXISTS ranks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Papita', 0)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Cerebrito', 100)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Nerd', 250)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Master', 500)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Dios', 1000)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Diavlo', 2500)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Top Global', 5000)")
             }
 
             private fun insertDefaultCategories(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL)")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Work')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Personal')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Health')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Study')")
-                db.execSQL("INSERT INTO categories (name) VALUES ('Others')")
+                db.execSQL("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, id_user INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Personal', 0)")
+                db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Study', 0)")
             }
         }
     }

@@ -5,20 +5,21 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:padding="16dp"
+    android:background="@color/bg_screen"
+    android:padding="24dp"
     tools:context=".HacerNota">
 
+    <!-- Header Section -->
     <TextView
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="12dp"
         android:text="‹"
-        android:textColor="#6C63FF"
+        android:textColor="@color/primary_light"
         android:textSize="48sp"
         android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,43 +27,45 @@
         android:id="@+id/et_titulo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="8dp"
         android:background="@android:color/transparent"
+        android:fontFamily="@font/hey_comic"
         android:hint="Title"
-        android:text=""
-        android:textColor="#6C63FF"
-        android:textSize="20sp"
+        android:inputType="textCapSentences"
+        android:textColor="@color/primary_light"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/btn_back"
         app:layout_constraintEnd_toStartOf="@+id/btn_list_mode"
         app:layout_constraintStart_toEndOf="@+id/btn_back"
-        app:layout_constraintTop_toTopOf="@+id/btn_back" />
+        app:layout_constraintTop_toTopOf="@+id/btn_back"
+        app:layout_constraintVertical_bias="0.703" />
 
     <TextView
         android:id="@+id/btn_list_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:fontFamily="@font/hey_comic"
         android:text="List Mode"
-        android:textColor="#6C63FF"
+        android:textColor="@color/primary_light"
         android:textSize="14sp"
         android:textStyle="bold"
+        android:padding="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toBottomOf="@+id/et_titulo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/et_titulo" />
 
+    <!-- Body Section Card -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_cuerpo"
-        android:layout_width="354dp"
-        android:layout_height="641dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_card_nota"
         android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btn_guardar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_back">
@@ -71,6 +74,7 @@
             android:id="@+id/scroll_cuerpo"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:fillViewport="true"
             android:scrollbars="none"
             app:layout_constraintBottom_toTopOf="@+id/tv_contador"
             app:layout_constraintEnd_toEndOf="parent"
@@ -86,9 +90,8 @@
                 android:hint="Type something..."
                 android:inputType="textMultiLine"
                 android:lineSpacingExtra="6dp"
-                android:text=""
-                android:textColor="#3B78E7"
-                android:textSize="13sp" />
+                android:textColor="@color/info_variant"
+                android:textSize="15sp" />
         </ScrollView>
 
         <TextView
@@ -96,32 +99,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="12345"
-            android:textColor="#B5B5C0"
+            android:text="0"
+            android:textColor="@color/text_muted"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
+    <!-- Footer Action -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_guardar"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_button_comenzar"
-        app:backgroundTint="@null"
-        android:elevation="6dp"
-        android:paddingStart="28dp"
-        android:paddingEnd="28dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:text="Save"
+        android:layout_height="56dp"
+        android:text="Save Note"
         android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textStyle="bold"
+        app:backgroundTint="@color/primary"
+        app:cornerRadius="16dp"
+        app:elevation="4dp"
+        android:paddingHorizontal="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

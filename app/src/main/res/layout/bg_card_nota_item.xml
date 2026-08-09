@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="16dp"
     android:background="@drawable/bg_card_nota"
-    android:padding="14dp">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/tv_nota_titulo"
@@ -13,10 +13,10 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/hey_comic"
         android:text="Note Title"
-        android:textColor="#1A1A2E"
-        android:textSize="14sp"
+        android:textColor="@color/text_dark"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_menu_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,12 +25,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:maxLines="2"
+        android:maxLines="3"
         android:ellipsize="end"
         android:text="Note content preview..."
-        android:textColor="#6B6B76"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/text_medium"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toStartOf="@+id/btn_menu_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_nota_titulo" />
 
@@ -38,18 +38,18 @@
         android:id="@+id/tv_badge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/bg_badge_naranja"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:text="Today"
-        android:textColor="#7A4A00"
-        android:textSize="10sp"
-        app:layout_constraintEnd_toStartOf="@+id/btn_menu_item"
-        app:layout_constraintTop_toBottomOf="@+id/tv_nota_cuerpo"
-        android:layout_marginEnd="8dp" />
+        android:textColor="@color/warning_dark"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nota_cuerpo" />
 
     <TextView
         android:id="@+id/btn_menu_item"
@@ -57,9 +57,11 @@
         android:layout_height="40dp"
         android:gravity="center"
         android:text="⋮"
-        android:textColor="#6C63FF"
+        android:textColor="@color/primary_light"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
