@@ -18,9 +18,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
-import com.example.clendapp.data.StreakManager
-import kotlinx.coroutines.launch
 import kotlin.toString
 
 class HacerNota : AppCompatActivity() {
@@ -242,13 +239,6 @@ class HacerNota : AppCompatActivity() {
     private fun saveNote(folder: String) {
         val title = etTitulo.text.toString()
         val content = etCuerpo.text.toString()
-
-        lifecycleScope.launch {
-            val points = StreakManager.completeActivity(this@HacerNota)
-            if (points > 0) {
-                Toast.makeText(this@HacerNota, getString(R.string.points_congrats_generic, points), Toast.LENGTH_SHORT).show()
-            }
-        }
 
         if (currentNote == null) {
             val newNote = Note(

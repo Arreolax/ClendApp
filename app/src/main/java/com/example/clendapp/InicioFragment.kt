@@ -51,14 +51,7 @@ class InicioFragment : Fragment() {
         setupRecyclerView()
         observeReminders()
         setupNotesCard()
-        setupRankCard()
         setupSwipeRefresh()
-    }
-
-    private fun setupRankCard() {
-        binding.cardRank.setOnClickListener {
-            findNavController().navigate(R.id.nav_racha)
-        }
     }
 
     private fun setupSwipeRefresh() {
@@ -68,7 +61,7 @@ class InicioFragment : Fragment() {
             setupCalendar()
             observeReminders()
             setupNotesCard()
-
+            
             // Finalizar animación después de un pequeño retraso
             binding.swipeRefresh.isRefreshing = false
         }
@@ -79,7 +72,7 @@ class InicioFragment : Fragment() {
             val intent = Intent(requireContext(), MisNotas::class.java)
             startActivity(intent)
         }
-
+        
         // Cargar conteo de notas
         NoteManager.loadNotes(requireContext())
         val count = NoteManager.getNotes().size
@@ -100,13 +93,13 @@ class InicioFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 database.scoresDao().getScoresFlowByUserId(userId).collect { scores ->
                     if (_binding == null) return@collect
-
+                    
                     scores?.let {
                         binding.tvResumeCalculator.text = "${it.calculator_score} points"
                         binding.tvResumeStudy.text = "${it.study_score} points"
-
+                        
                         val rank = database.ranksDao().getRankById(it.id_rank)
-                        binding.tvResumeRank.text = rank?.name ?: "Papita"
+                        binding.tvResumeRank.text = rank?.name ?: "Potato"
                     }
                 }
             }
@@ -156,7 +149,7 @@ class InicioFragment : Fragment() {
     private fun updateGreeting() {
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
-
+        
         val greeting = when (hour) {
             in 0..11 -> "Good Morning!!"
             in 12..18 -> "Good Afternoon!!"
@@ -169,9 +162,9 @@ class InicioFragment : Fragment() {
         val calendar = Calendar.getInstance()
         val currentDayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
         val currentYear = calendar.get(Calendar.YEAR)
-
+        
         val dayFormat = SimpleDateFormat("EE", Locale.getDefault())
-
+        
         val rangeCalendar = calendar.clone() as Calendar
         rangeCalendar.add(Calendar.DAY_OF_YEAR, -3)
         val startDateMillis = rangeCalendar.timeInMillis
@@ -188,7 +181,7 @@ class InicioFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 database.tasksDao().getTasksForDate(loggedInUserId, startDateMillis, endDateMillis).collect { tasks ->
                     if (_binding == null) return@collect
-                    val tasksByDate = tasks.groupBy {
+                    val tasksByDate = tasks.groupBy { 
                         java.time.Instant.ofEpochMilli(it.date).atZone(ZoneId.systemDefault()).toLocalDate()
                     }
                     updateCalendarDots(tasksByDate)
@@ -200,22 +193,22 @@ class InicioFragment : Fragment() {
     private fun drawCalendarBase(currentDayOfYear: Int, currentYear: Int, dayFormat: SimpleDateFormat) {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -3)
-
+        
         if (_binding == null) return
-
+        
         for (i in 0 until binding.calendarRow.childCount) {
             val dayContainer = binding.calendarRow.getChildAt(i) as? LinearLayout
             if (dayContainer != null) {
                 val tvDayNum = dayContainer.getChildAt(0) as? TextView
                 val tvDayName = dayContainer.getChildAt(1) as? TextView
-
+                
                 val dayNum = calendar.get(Calendar.DAY_OF_MONTH)
                 val dayName = dayFormat.format(calendar.time)
-
+                
                 tvDayNum?.text = dayNum.toString()
                 tvDayName?.text = dayName
 
-                if (calendar.get(Calendar.DAY_OF_YEAR) == currentDayOfYear &&
+                if (calendar.get(Calendar.DAY_OF_YEAR) == currentDayOfYear && 
                     calendar.get(Calendar.YEAR) == currentYear) {
                     dayContainer.setBackgroundResource(R.drawable.bg_day_active)
                     dayContainer.layoutParams = (dayContainer.layoutParams as LinearLayout.LayoutParams).apply {
@@ -244,34 +237,34 @@ class InicioFragment : Fragment() {
 
     private fun updateCalendarDots(tasksByDate: Map<LocalDate, List<Tasks>>) {
         if (_binding == null || context == null) return
-
+        
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -3)
-
+        
         for (i in 0 until binding.calendarRow.childCount) {
             val dayContainer = binding.calendarRow.getChildAt(i) as? LinearLayout
             val layoutDots = dayContainer?.getChildAt(2) as? LinearLayout
-
+            
             layoutDots?.removeAllViews()
-
+            
             val dateOfThisDay = java.time.Instant.ofEpochMilli(calendar.timeInMillis).atZone(ZoneId.systemDefault()).toLocalDate()
             val tasksForDay = tasksByDate[dateOfThisDay] ?: emptyList()
             val dotCount = tasksForDay.size.coerceAtMost(3)
-
+            
             for (j in 0 until dotCount) {
                 val dot = View(context)
                 val dotSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
                 val dotParams = LinearLayout.LayoutParams(dotSize, dotSize)
                 dotParams.setMargins(2, 0, 2, 0)
                 dot.layoutParams = dotParams
-
+                
                 val currentTask = tasksForDay[j]
                 val colorRes = when (currentTask.id_category) {
                     1 -> R.color.cat_purple
                     2 -> R.color.cat_green
                     else -> R.color.cat_blue
                 }
-
+                
                 val shape = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
                     setColor(ContextCompat.getColor(requireContext(), colorRes))

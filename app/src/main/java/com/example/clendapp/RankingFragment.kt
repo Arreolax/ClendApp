@@ -22,6 +22,7 @@ class RankingFragment : Fragment() {
     private lateinit var rankingAdapter: RankingAdapter
     private var allCalculatorScores: List<Scores> = emptyList()
     private var allStudyScores: List<Scores> = emptyList()
+    private var currentUsername: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +39,22 @@ class RankingFragment : Fragment() {
         setupNavigation()
         setupRecyclerView(true) // Start with calculator
         setupTabs()
+        loadCurrentUsername()
         observeScores()
         setupSwipeRefresh()
+    }
+
+    private fun loadCurrentUsername() {
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", android.content.Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                val user = database.userDao().getUserById(userId)
+                currentUsername = user?.username ?: "Me"
+                binding.tvMyRankName.text = currentUsername
+            }
+        }
     }
 
     private fun setupNavigation() {
@@ -110,6 +125,32 @@ class RankingFragment : Fragment() {
             binding.rvRanking.visibility = View.VISIBLE
             binding.layoutEmptyState.visibility = View.GONE
             rankingAdapter.submitList(filteredList)
+        }
+        updateMyRankCard()
+    }
+
+    private fun updateMyRankCard() {
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", android.content.Context.MODE_PRIVATE)
+        val loggedInUserId = sharedPref.getInt("user_id", -1)
+        if (loggedInUserId == -1) return
+
+        val isCalculator = binding.tabLayout.selectedTabPosition == 0
+        val rawList = if (isCalculator) allCalculatorScores else allStudyScores
+        
+        // Find user in the full list (sorted)
+        val userRankIndex = rawList.indexOfFirst { it.id_user == loggedInUserId }
+        
+        if (userRankIndex != -1) {
+            val userScore = rawList[userRankIndex]
+            val position = userRankIndex + 1
+            val scoreValue = if (isCalculator) userScore.calculator_score else userScore.study_score
+            
+            binding.tvMyRankPos.text = "#$position"
+            binding.tvMyRankScore.text = "$scoreValue pts"
+            binding.tvMyRankName.text = "@$currentUsername" ?: "Me"
+        } else {
+            binding.tvMyRankPos.text = "--"
+            binding.tvMyRankScore.text = "0 pts"
         }
     }
 

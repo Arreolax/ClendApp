@@ -1,6 +1,7 @@
 package com.example.clendapp
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
@@ -41,6 +42,17 @@ class calculadora : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Verificar sesión
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        if (sharedPref.getInt("user_id", -1) == -1) {
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_calculadora)
 
@@ -60,7 +72,6 @@ class calculadora : AppCompatActivity() {
         tvResultado.text = "0"
 
         // Cargar mejor puntaje
-        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
         bestScore = sharedPref.getInt("best_score_calc", 0)
 

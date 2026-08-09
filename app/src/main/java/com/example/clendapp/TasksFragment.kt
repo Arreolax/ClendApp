@@ -80,11 +80,7 @@ class TasksFragment : Fragment() {
                 editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
             },
             onDeleteClick = { task ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    database.tasksDao().delete(task)
-                    NotificationHelper.cancelTaskNotification(requireContext(), task.id)
-                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
-                }
+                showDeleteConfirmationDialog(task)
             },
             onDoneClick = { task ->
                 viewLifecycleOwner.lifecycleScope.launch {
@@ -183,6 +179,43 @@ class TasksFragment : Fragment() {
             binding.layoutEmptyState.visibility = View.GONE
             tasksAdapter.submitTasks(filteredTasks)
         }
+    }
+
+    private fun showDeleteConfirmationDialog(task: Tasks) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<android.widget.TextView>(R.id.tv_dialog_title).text = "Delete Task?"
+        dialogView.findViewById<android.widget.TextView>(R.id.tv_dialog_message).text = "Are you sure you want to delete this task? This action cannot be undone."
+        
+        val btnConfirm = dialogView.findViewById<android.widget.TextView>(R.id.btn_dialog_accept)
+        val btnCancel = dialogView.findViewById<android.widget.TextView>(R.id.btn_dialog_cancel)
+        
+        btnConfirm.text = "Delete"
+        btnCancel.text = "Cancel"
+        btnCancel.visibility = View.VISIBLE
+
+        btnConfirm.setOnClickListener {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                database.tasksDao().delete(task)
+                NotificationHelper.cancelTaskNotification(requireContext(), task.id)
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.85).toInt(),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     override fun onDestroyView() {

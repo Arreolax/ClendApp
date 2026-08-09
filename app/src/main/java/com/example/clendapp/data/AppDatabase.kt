@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class],
-    version = 21,
+    version = 19,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -55,7 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 Log.d("DB", "onOpen executed")
-
+                
                 // Adding ranks if empty
                 val ranksTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='ranks'").use { it.moveToFirst() }
                 if (ranksTableExists) {
@@ -81,12 +81,12 @@ abstract class AppDatabase : RoomDatabase() {
 
             private fun insertDefaultRanks(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS ranks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Potato', 0)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Brainy', 100)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Papita', 0)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Cerebrito', 100)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Nerd', 250)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Master', 500)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('God', 1000)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Devil', 2500)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Dios', 1000)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Diavlo', 2500)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Top Global', 5000)")
             }
 

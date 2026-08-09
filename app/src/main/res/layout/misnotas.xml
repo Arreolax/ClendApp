@@ -119,6 +119,20 @@
         app:layout_constraintEnd_toEndOf="@+id/card_nueva_nota"
         app:layout_constraintTop_toTopOf="@+id/card_nueva_nota" />
 
+    <TextView
+        android:id="@+id/tv_empty_notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No notes assigned to this folder"
+        android:textColor="@color/text_light"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/card_nueva_nota" />
+
     <ScrollView
         android:id="@+id/scroll_notas"
         android:layout_width="0dp"

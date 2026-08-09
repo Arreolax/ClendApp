@@ -56,6 +56,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/et_titulo" />
 
+    <TextView
+        android:id="@+id/tv_current_folder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_pill_categoria"
+        android:backgroundTint="@color/cat_blue_bg"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:text="Folder: Personal"
+        android:textColor="@color/cat_blue"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_guardar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_guardar" />
+
     <!-- Body Section Card -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_cuerpo"
