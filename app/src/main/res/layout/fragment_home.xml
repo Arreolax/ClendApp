@@ -257,28 +257,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reminder"
+                    android:text="Pending tasks"
                     android:fontFamily="@font/hey_comic"
                     android:textColor="@color/text_dark"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_reminder_subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Don\'t forget schedule for today"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif-light"
-                    android:textStyle="italic"
-                    android:layout_marginBottom="16dp" />
-
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_reminders"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="4dp" />
 
                 <TextView
                     android:id="@+id/tv_empty_reminders"
@@ -326,11 +316,17 @@
                     android:id="@+id/tv_notes_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="26dp"
+                    android:minHeight="26dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_pill_categoria"
+                    android:backgroundTint="@color/cat_teal_bg"
+                    android:paddingHorizontal="8dp"
                     android:text="0"
-                    android:textColor="@color/text_light"
-                    android:textSize="16sp"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp"
                     android:textStyle="bold"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="12dp"
                     android:visibility="gone" />
 
                 <TextView

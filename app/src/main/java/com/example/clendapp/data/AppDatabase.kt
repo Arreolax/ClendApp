@@ -8,8 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class],
-    version = 19,
+    entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class, Folders::class, Notes::class],
+    version = 22,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -19,6 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ranksDao(): RanksDao
     abstract fun categoriesDao(): CategoriesDao
     abstract fun scoresDao(): ScoresDao
+    abstract fun foldersDao(): FoldersDao
+    abstract fun notesDao(): NotesDao
 
     companion object {
 
@@ -77,6 +79,17 @@ abstract class AppDatabase : RoomDatabase() {
                     }
                     cursor.close()
                 }
+
+                // Adding folder if empty
+                val foldersTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='folders'").use { it.moveToFirst() }
+                if (foldersTableExists) {
+                    val cursor = db.query("SELECT COUNT(*) FROM folders")
+                    if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
+                        Log.d("DB", "Adding folders in onOpen")
+                        insertDefaultFolders(db)
+                    }
+                    cursor.close()
+                }
             }
 
             private fun insertDefaultRanks(db: SupportSQLiteDatabase) {
@@ -93,7 +106,17 @@ abstract class AppDatabase : RoomDatabase() {
             private fun insertDefaultCategories(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, id_user INTEGER NOT NULL)")
                 db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Personal', 0)")
+                db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Work', 0)")
                 db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Study', 0)")
+                db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Others', 0)")
+            }
+
+            private fun insertDefaultFolders(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, id_user INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Personal', 0)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Work', 0)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Study', 0)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Ideas', 0)")
             }
         }
     }

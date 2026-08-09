@@ -73,14 +73,24 @@ class InicioFragment : Fragment() {
             startActivity(intent)
         }
         
-        // Cargar conteo de notas
-        NoteManager.loadNotes(requireContext())
-        val count = NoteManager.getNotes().size
-        if (count > 1) {
-            binding.tvNotesCount.text = count.toString()
-            binding.tvNotesCount.visibility = View.VISIBLE
-        } else {
-            binding.tvNotesCount.visibility = View.GONE
+        // Cargar conteo de notas desde la base de datos
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+        
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                database.notesDao().getAllNotes(userId).collect { notes ->
+                    if (_binding == null) return@collect
+                    val count = notes.size
+                    if (count > 0) {
+                        binding.tvNotesCount.text = count.toString()
+                        binding.tvNotesCount.visibility = View.VISIBLE
+                    } else {
+                        binding.tvNotesCount.visibility = View.GONE
+                    }
+                }
+            }
         }
     }
 
@@ -259,10 +269,12 @@ class InicioFragment : Fragment() {
                 dot.layoutParams = dotParams
                 
                 val currentTask = tasksForDay[j]
-                val colorRes = when (currentTask.id_category) {
-                    1 -> R.color.cat_purple
+                val colorRes = when (currentTask.id_category % 5) {
+                    1 -> R.color.cat_teal
                     2 -> R.color.cat_green
-                    else -> R.color.cat_blue
+                    3 -> R.color.cat_blue
+                    4 -> R.color.cat_orange
+                    else -> R.color.cat_pink
                 }
                 
                 val shape = android.graphics.drawable.GradientDrawable().apply {

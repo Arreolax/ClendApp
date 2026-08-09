@@ -75,6 +75,17 @@ class prueba : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Verificar sesión
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        if (sharedPref.getInt("user_id", -1) == -1) {
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -159,30 +170,72 @@ class prueba : AppCompatActivity() {
         val userId = sharedPref.getInt("user_id", -1)
         
         if (userId != -1) {
-            val studyPoints = (studyMillis / 60000).toInt() // 1 point per minute
-            val totalSeconds = (totalMillis / 1000).toInt()
-            
-            if (studyPoints <= 0 && totalSeconds <= 0) return
+            val sessionSeconds = (totalMillis / 1000).toInt()
+            if (sessionSeconds <= 0) return
 
             val database = AppDatabase.getDatabase(this)
             lifecycleScope.launch {
                 val currentScores = database.scoresDao().getScoresByUserId(userId)
+                val allRanks = database.ranksDao().getAll().sortedByDescending { it.score }
+                
                 if (currentScores != null) {
+                    val newTotalSeconds = currentScores.study_time_sec + sessionSeconds
+                    val newStudyScore = newTotalSeconds / 30 // 1 punto por cada 30 segundos acumulados
+                    
+                    // Encontrar el nuevo rango basado en el puntaje
+                    val nextRank = allRanks.firstOrNull { newStudyScore >= it.score }
+                    val oldRankId = currentScores.id_rank
+                    val newRankId = nextRank?.id ?: oldRankId
+
                     val updatedScores = currentScores.copy(
-                        study_score = currentScores.study_score + studyPoints,
-                        study_time_sec = currentScores.study_time_sec + totalSeconds
+                        study_time_sec = newTotalSeconds,
+                        study_score = newStudyScore,
+                        id_rank = newRankId
                     )
                     database.scoresDao().updateScores(updatedScores)
+
+                    // Si subió de rango, mostrar el modal
+                    if (newRankId > oldRankId && nextRank != null) {
+                        showRankUpgradeModal(nextRank.name)
+                    }
                 } else {
+                    val newStudyScore = sessionSeconds / 30
+                    val nextRank = allRanks.firstOrNull { newStudyScore >= it.score }
+                    
                     val newScores = Scores(
                         id_user = userId, 
-                        study_score = studyPoints,
-                        study_time_sec = totalSeconds
+                        study_time_sec = sessionSeconds,
+                        study_score = newStudyScore,
+                        id_rank = nextRank?.id ?: 1
                     )
                     database.scoresDao().insertScores(newScores)
+                    
+                    if ((nextRank?.id ?: 1) > 1 && nextRank != null) {
+                        showRankUpgradeModal(nextRank.name)
+                    }
                 }
             }
         }
+    }
+
+    private fun showRankUpgradeModal(rankName: String) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_rank_upgrade, null)
+        val dialog = AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.tv_new_rank_name).text = rankName
+        
+        val btnAccept = dialogView.findViewById<android.view.View>(R.id.btn_dialog_accept)
+        btnAccept.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun updateMusicIcon(musicOn: Boolean) {

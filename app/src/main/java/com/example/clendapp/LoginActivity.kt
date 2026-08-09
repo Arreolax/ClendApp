@@ -19,18 +19,19 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        database = AppDatabase.getDatabase(this)
-
-        // Verificar si ya hay una sesión iniciada
+        // Verificar si ya hay una sesión iniciada antes de inflar nada
         val sharedPref = getSharedPreferences("clend_app_prefs", MODE_PRIVATE)
         if (sharedPref.getInt("user_id", -1) != -1) {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
         }
+
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        database = AppDatabase.getDatabase(this)
 
         binding.ivShowPassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible

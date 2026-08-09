@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Categories
 import com.example.clendapp.data.Tasks
@@ -164,15 +165,17 @@ class AddTaskSheetFragment : BottomSheetDialogFragment() {
                 categoryView.text = category.name
                 categoryView.tag = category.id // Guardar ID para saber cuál está seleccionado
                 
-                // Color y fondo según el ID
-                val (bgRes, colorHex) = when (category.id % 3) {
-                    1 -> Pair(R.drawable.bg_category_purple, "#000000")
-                    2 -> Pair(R.drawable.bg_category_green, "#4CAF50")
-                    else -> Pair(R.drawable.bg_category_blue, "#2196F3")
+                // Color y fondo según el ID (5 opciones)
+                val (bgRes, colorRes) = when (category.id % 5) {
+                    1 -> Pair(R.drawable.bg_category_teal, R.color.cat_teal)
+                    2 -> Pair(R.drawable.bg_category_green, R.color.cat_green)
+                    3 -> Pair(R.drawable.bg_category_blue, R.color.cat_blue)
+                    4 -> Pair(R.drawable.bg_category_orange, R.color.cat_orange)
+                    else -> Pair(R.drawable.bg_category_pink, R.color.cat_pink)
                 }
                 
                 categoryView.setBackgroundResource(bgRes)
-                val colorInt = android.graphics.Color.parseColor(colorHex)
+                val colorInt = ContextCompat.getColor(requireContext(), colorRes)
                 categoryView.setTextColor(colorInt)
                 categoryView.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(colorInt)
 

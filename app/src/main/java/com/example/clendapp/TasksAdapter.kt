@@ -210,10 +210,12 @@ class TasksAdapter(
                 popup.show()
             }
             
-            val colorRes = when (task.id_category) {
-                1 -> R.color.cat_purple
+            val colorRes = when (task.id_category % 5) {
+                1 -> R.color.cat_teal
                 2 -> R.color.cat_green
-                else -> R.color.cat_blue
+                3 -> R.color.cat_blue
+                4 -> R.color.cat_orange
+                else -> R.color.cat_pink
             }
             binding.viewCategoryIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, colorRes))
         }

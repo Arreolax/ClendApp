@@ -129,11 +129,7 @@ class CalendarFragment : Fragment() {
                 editSheet.show(parentFragmentManager, AddTaskSheetFragment.TAG)
             },
             onDeleteClick = { task ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    database.tasksDao().delete(task)
-                    NotificationHelper.cancelTaskNotification(requireContext(), task.id)
-                    Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
-                }
+                showDeleteConfirmationDialog(task)
             },
             onDoneClick = { task ->
                 viewLifecycleOwner.lifecycleScope.launch {
@@ -192,6 +188,43 @@ class CalendarFragment : Fragment() {
         popup.menu.add("Delete")
         popup.menu.add("Mark as done")
         popup.show()
+    }
+
+    private fun showDeleteConfirmationDialog(task: Tasks) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_calculadora_game, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme)
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<android.widget.TextView>(R.id.tv_dialog_title).text = "Delete Task?"
+        dialogView.findViewById<android.widget.TextView>(R.id.tv_dialog_message).text = "Are you sure you want to delete this task? This action cannot be undone."
+        
+        val btnConfirm = dialogView.findViewById<android.widget.TextView>(R.id.btn_dialog_accept)
+        val btnCancel = dialogView.findViewById<android.widget.TextView>(R.id.btn_dialog_cancel)
+        
+        btnConfirm.text = "Delete"
+        btnCancel.text = "Cancel"
+        btnCancel.visibility = View.VISIBLE
+
+        btnConfirm.setOnClickListener {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                database.tasksDao().delete(task)
+                NotificationHelper.cancelTaskNotification(requireContext(), task.id)
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Task deleted", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.85).toInt(),
+            android.view.WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun setMonthView() {
@@ -268,10 +301,12 @@ class CalendarFragment : Fragment() {
                 dot.layoutParams = dotParams
                 
                 val currentTask = tasksForDay[j]
-                val colorRes = when (currentTask.id_category) {
-                    1 -> R.color.cat_purple
+                val colorRes = when (currentTask.id_category % 5) {
+                    1 -> R.color.cat_teal
                     2 -> R.color.cat_green
-                    else -> R.color.cat_blue
+                    3 -> R.color.cat_blue
+                    4 -> R.color.cat_orange
+                    else -> R.color.cat_pink
                 }
                 
                 val shape = android.graphics.drawable.GradientDrawable().apply {
