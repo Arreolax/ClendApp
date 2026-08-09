@@ -8,8 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class],
-    version = 19,
+    entities = [User::class, Tasks::class, Ranks::class, Categories::class, Scores::class, Notes::class, Folders::class],
+    version = 22,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -19,6 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ranksDao(): RanksDao
     abstract fun categoriesDao(): CategoriesDao
     abstract fun scoresDao(): ScoresDao
+    abstract fun notesDao(): NotesDao
+    abstract fun foldersDao(): FoldersDao
 
     companion object {
 
@@ -50,12 +52,13 @@ abstract class AppDatabase : RoomDatabase() {
                 Log.d("DB", "onCreate executed")
                 insertDefaultRanks(db)
                 insertDefaultCategories(db)
+                insertDefaultFolders(db)
             }
 
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 Log.d("DB", "onOpen executed")
-                
+
                 // Adding ranks if empty
                 val ranksTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='ranks'").use { it.moveToFirst() }
                 if (ranksTableExists) {
@@ -77,23 +80,38 @@ abstract class AppDatabase : RoomDatabase() {
                     }
                     cursor.close()
                 }
+                
+                // Adding folders if empty
+                val foldersTableExists = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='folders'").use { it.moveToFirst() }
+                if (foldersTableExists) {
+                    val cursor = db.query("SELECT COUNT(*) FROM folders")
+                    if (cursor.moveToFirst() && cursor.getInt(0) == 0) {
+                        Log.d("DB", "Adding folders in onOpen")
+                        insertDefaultFolders(db)
+                    }
+                    cursor.close()
+                }
             }
 
             private fun insertDefaultRanks(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS ranks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Papita', 0)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Cerebrito', 100)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Potato', 0)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Brainy', 100)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Nerd', 250)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Master', 500)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Dios', 1000)")
-                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Diavlo', 2500)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('God', 1000)")
+                db.execSQL("INSERT INTO ranks (name, score) VALUES ('Devil', 2500)")
                 db.execSQL("INSERT INTO ranks (name, score) VALUES ('Top Global', 5000)")
             }
 
             private fun insertDefaultCategories(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, id_user INTEGER NOT NULL)")
                 db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Personal', 0)")
                 db.execSQL("INSERT INTO categories (name, id_user) VALUES ('Study', 0)")
+            }
+            
+            private fun insertDefaultFolders(db: SupportSQLiteDatabase) {
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Personal', 0)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Work', 0)")
+                db.execSQL("INSERT INTO folders (name, id_user) VALUES ('Ideas', 0)")
             }
         }
     }

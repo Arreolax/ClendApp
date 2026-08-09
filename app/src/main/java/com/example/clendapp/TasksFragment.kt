@@ -13,6 +13,7 @@ import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.StreakManager
 import com.example.clendapp.data.Tasks
 import com.example.clendapp.databinding.FragmentTasksBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
@@ -90,7 +91,7 @@ class TasksFragment : Fragment() {
                     if (updatedTask.isCompleted) {
                         val points = StreakManager.completeActivity(requireContext())
                         if (points > 0) {
-                            Toast.makeText(requireContext(), getString(R.string.points_congrats_generic, points), Toast.LENGTH_SHORT).show()
+                            Snackbar.make(binding.root, getString(R.string.points_congrats_generic, points), Snackbar.LENGTH_LONG).show()
                         }
                         NotificationHelper.cancelTaskNotification(requireContext(), task.id)
                     } else {

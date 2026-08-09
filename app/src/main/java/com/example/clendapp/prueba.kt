@@ -24,6 +24,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Scores
+import com.example.clendapp.data.StreakManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.min
@@ -159,14 +161,27 @@ class prueba : AppCompatActivity() {
         val userId = sharedPref.getInt("user_id", -1)
         
         if (userId != -1) {
-            val studyPoints = (studyMillis / 60000).toInt() // 1 point per minute
+            val studyMinutes = (studyMillis / 60000).toInt()
+            // New rule: 15 min minimum to get points
+            val studyPoints = if (studyMinutes >= 15) {
+                studyMinutes * 3
+            } else {
+                0
+            }
+
             val totalSeconds = (totalMillis / 1000).toInt()
-            
-            if (studyPoints <= 0 && totalSeconds <= 0) return
 
             val database = AppDatabase.getDatabase(this)
             lifecycleScope.launch {
                 val currentScores = database.scoresDao().getScoresByUserId(userId)
+                
+                // Call StreakManager with custom points if any
+                StreakManager.completeActivity(this@prueba, if (studyPoints > 0) studyPoints else null)
+                
+                if (studyPoints > 0) {
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.points_congrats_study, studyPoints), Snackbar.LENGTH_LONG).show()
+                }
+
                 if (currentScores != null) {
                     val updatedScores = currentScores.copy(
                         study_score = currentScores.study_score + studyPoints,

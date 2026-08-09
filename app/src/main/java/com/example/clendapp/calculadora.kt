@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Scores
 import com.example.clendapp.data.StreakManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -251,7 +252,7 @@ class calculadora : AppCompatActivity() {
         lifecycleScope.launch {
             val points = StreakManager.completeActivity(this@calculadora, finalScore)
             if (points > 0) {
-                Toast.makeText(this@calculadora, getString(R.string.points_congrats_game, points), Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), getString(R.string.points_congrats_game, points), Snackbar.LENGTH_LONG).show()
             }
         }
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)
@@ -351,7 +352,7 @@ class calculadora : AppCompatActivity() {
         lifecycleScope.launch {
             val points = StreakManager.completeActivity(this@calculadora, score)
             if (points > 0) {
-                Toast.makeText(this@calculadora, getString(R.string.points_congrats_game, points), Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), getString(R.string.points_congrats_game, points), Snackbar.LENGTH_LONG).show()
             }
         }
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_calculadora_game, null)

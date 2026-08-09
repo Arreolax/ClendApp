@@ -19,6 +19,7 @@ import com.example.clendapp.data.AppDatabase
 import com.example.clendapp.data.Folders
 import com.example.clendapp.data.Notes
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,7 +34,7 @@ class MisNotas : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Verificar sesión
+        // Verify session
         val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
         if (userId == -1) {
@@ -78,13 +79,13 @@ class MisNotas : AppCompatActivity() {
         if (userId == -1) return
 
         lifecycleScope.launch {
-            val dbFolders = database.foldersDao().getFoldersForUser(userId).map { it.name }
-            val folders = listOf("All") + dbFolders
+            val dbFoldersList = database.foldersDao().getFoldersForUser(userId)
+            val foldersNames = listOf("All") + dbFoldersList.map { it.name }
             val container = findViewById<LinearLayout>(R.id.container_tags)
             val typeface = ResourcesCompat.getFont(this@MisNotas, R.font.hey_comic)
             
             container.removeAllViews()
-            folders.forEach { folderName ->
+            foldersNames.forEach { folderName ->
                 val tv = TextView(this@MisNotas).apply {
                     text = folderName
                     this.typeface = typeface
@@ -147,16 +148,15 @@ class MisNotas : AppCompatActivity() {
             val notesFlow = if (currentFolder == "All") {
                 database.notesDao().getAllNotes(userId)
             } else {
-                val folder = database.foldersDao().getFolderByName(currentFolder, userId)
-                if (folder != null) {
-                    database.notesDao().getNotesByFolder(userId, folder.id)
+                val folderObj = database.foldersDao().getFolderByName(currentFolder, userId)
+                if (folderObj != null) {
+                    database.notesDao().getNotesByFolder(userId, folderObj.id)
                 } else {
                     database.notesDao().getAllNotes(userId)
                 }
             }
 
-            notesFlow.collect { notesList ->
-                val foldersMap = database.foldersDao().getFoldersForUser(userId).associate { it.id to it.name }
+            notesFlow.collectLatest { notesList ->
                 containerNotas.removeAllViews()
                 
                 val tvEmptyNotes = findViewById<TextView>(R.id.tv_empty_notes)

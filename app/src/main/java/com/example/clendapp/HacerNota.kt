@@ -1,5 +1,6 @@
 package com.example.clendapp
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,15 +11,21 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import android.graphics.Color
-import androidx.core.content.ContextCompat
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import kotlin.toString
+import androidx.lifecycle.lifecycleScope
+import com.example.clendapp.data.AppDatabase
+import com.example.clendapp.data.Folders
+import com.example.clendapp.data.Notes
+import com.example.clendapp.data.StreakManager
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class HacerNota : AppCompatActivity() {
 
@@ -28,13 +35,24 @@ class HacerNota : AppCompatActivity() {
     private lateinit var btnListMode: TextView
     private lateinit var cardCuerpo: View
 
-    private var currentNote: Note? = null
+    private var currentNote: Notes? = null
     private var isListMode = false
+    private lateinit var database: AppDatabase
+    private var userId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val sharedPref = getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        userId = sharedPref.getInt("user_id", -1)
+        if (userId == -1) {
+            finish()
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.hacernota)
+        database = AppDatabase.getDatabase(this)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -48,22 +66,30 @@ class HacerNota : AppCompatActivity() {
             insets
         }
 
-        NoteManager.loadNotes(this)
         etTitulo = findViewById(R.id.et_titulo)
         etCuerpo = findViewById(R.id.et_cuerpo)
         tvContador = findViewById(R.id.tv_contador)
         btnListMode = findViewById(R.id.btn_list_mode)
         cardCuerpo = findViewById(R.id.card_cuerpo)
 
-        currentNote = intent.getSerializableExtra("NOTE") as? Note
+        val noteId = intent.getIntExtra("NOTE_ID", -1)
         val initialContent = intent.getStringExtra("CONTENT")
 
-        if (currentNote != null) {
-            etTitulo.setText(currentNote!!.title)
-            etCuerpo.setText(currentNote!!.content)
-            isListMode = currentNote!!.isList
+        if (noteId != -1) {
+            lifecycleScope.launch {
+                val note = database.notesDao().getNote(noteId).first()
+                note?.let {
+                    currentNote = it
+                    etTitulo.setText(it.title)
+                    etCuerpo.setText(it.description)
+                    isListMode = it.isList
+                    updateListModeUI()
+                    updateContador()
+                }
+            }
         } else if (initialContent != null) {
             etCuerpo.setText(initialContent)
+            updateContador()
         }
 
         onBackPressedDispatcher.addCallback(this) {
@@ -116,7 +142,6 @@ class HacerNota : AppCompatActivity() {
             btnListMode.setTextColor(ContextCompat.getColor(this, R.color.warning_dark))
             etCuerpo.setTextColor(ContextCompat.getColor(this, R.color.black))
 
-            // If starting a new list, add first star
             if (etCuerpo.text.isEmpty()) {
                 etCuerpo.setText("★ ")
                 etCuerpo.setSelection(2)
@@ -138,12 +163,13 @@ class HacerNota : AppCompatActivity() {
         val content = etCuerpo.text.toString().trim()
 
         if (currentNote != null) {
-            // Existing notes: Save automatically
-            saveNote(currentNote!!.folder)
-            Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show()
-            finish()
+            lifecycleScope.launch {
+                val folderId = currentNote!!.id_folder
+                saveNoteToDb(folderId)
+                Toast.makeText(this@HacerNota, "Note updated", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         } else {
-            // New notes
             val contentValue = if (isListMode && content.startsWith("★")) {
                 content.replace("★", "").trim()
             } else {
@@ -151,7 +177,6 @@ class HacerNota : AppCompatActivity() {
             }
 
             if (title.isNotEmpty() && contentValue.isNotEmpty()) {
-                // If both are filled, ask where to save
                 showSaveModal()
             } else {
                 if (isManualClick) {
@@ -174,87 +199,106 @@ class HacerNota : AppCompatActivity() {
             .create()
 
         val container = dialogView.findViewById<LinearLayout>(R.id.container_modal_carpetas)
-        var selectedFolder = "Personal"
+        var selectedFolderId = -1
 
         fun refreshFolders() {
-            container.removeAllViews()
-            val folders = NoteManager.getFolders()
-            folders.forEach { folderName ->
-                val tv = TextView(this).apply {
-                    text = folderName
-                    gravity = android.view.Gravity.CENTER
-                    textSize = 14f
-                    setPadding(0, 30, 0, 30)
-                    val lp = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { setMargins(0, 10, 0, 10) }
-                    layoutParams = lp
-
-                    if (folderName == selectedFolder) {
-                        setBackgroundResource(R.drawable.bg_pill_categoria_selected)
-                        setTextColor(ContextCompat.getColor(context, R.color.white))
-                    } else {
-                        setBackgroundResource(R.drawable.bg_pill_opcion)
-                        setTextColor(ContextCompat.getColor(context, R.color.text_dark_variant))
-                    }
-
-                    setOnClickListener {
-                        selectedFolder = folderName
-                        refreshFolders()
-                    }
+            lifecycleScope.launch {
+                container.removeAllViews()
+                val folders = database.foldersDao().getFoldersForUser(userId)
+                
+                if (selectedFolderId == -1 && folders.isNotEmpty()) {
+                    selectedFolderId = folders[0].id
                 }
-                container.addView(tv)
+
+                folders.forEach { folder ->
+                    val tv = TextView(this@HacerNota).apply {
+                        text = folder.name
+                        gravity = android.view.Gravity.CENTER
+                        textSize = 14f
+                        setPadding(0, 30, 0, 30)
+                        val lp = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply { setMargins(0, 10, 0, 10) }
+                        layoutParams = lp
+
+                        if (folder.id == selectedFolderId) {
+                            setBackgroundResource(R.drawable.bg_pill_categoria_selected)
+                            setTextColor(ContextCompat.getColor(context, R.color.white))
+                        } else {
+                            setBackgroundResource(R.drawable.bg_pill_opcion)
+                            setTextColor(ContextCompat.getColor(context, R.color.text_dark_variant))
+                        }
+
+                        setOnClickListener {
+                            selectedFolderId = folder.id
+                            refreshFolders()
+                        }
+                    }
+                    container.addView(tv)
+                }
             }
         }
 
         refreshFolders()
 
         dialogView.findViewById<View>(R.id.btn_guardar).setOnClickListener {
-            saveNote(selectedFolder)
-            dialog.dismiss()
-            Toast.makeText(this, "Note saved in $selectedFolder", Toast.LENGTH_SHORT).show()
-            finish()
+            lifecycleScope.launch {
+                saveNoteToDb(selectedFolderId)
+                dialog.dismiss()
+                Toast.makeText(this@HacerNota, "Note saved", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
 
         dialogView.findViewById<View>(R.id.btn_agregar_carpeta).setOnClickListener {
             val et = dialogView.findViewById<EditText>(R.id.et_nueva_carpeta)
-            val newFolder = et.text.toString().trim()
-            if (newFolder.isNotEmpty()) {
-                NoteManager.addFolder(this, newFolder)
-                selectedFolder = newFolder
-                et.setText("")
-                refreshFolders()
+            val newFolderName = et.text.toString().trim()
+            if (newFolderName.isNotEmpty()) {
+                lifecycleScope.launch {
+                    val newFolderId = database.foldersDao().insert(Folders(name = newFolderName, id_user = userId))
+                    selectedFolderId = newFolderId.toInt()
+                    et.setText("")
+                    refreshFolders()
+                }
             }
         }
 
         dialog.show()
-
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.9).toInt(),
             WindowManager.LayoutParams.WRAP_CONTENT
         )
     }
 
-    private fun saveNote(folder: String) {
-        val title = etTitulo.text.toString()
-        val content = etCuerpo.text.toString()
+    private suspend fun saveNoteToDb(folderId: Int) {
+        val title = etTitulo.text.toString().trim()
+        val content = etCuerpo.text.toString().trim()
+
+        val points = StreakManager.completeActivity(this@HacerNota)
+        if (points > 0) {
+            Snackbar.make(findViewById(android.R.id.content), getString(R.string.points_congrats_generic, points), Snackbar.LENGTH_LONG).show()
+        }
 
         if (currentNote == null) {
-            val newNote = Note(
+            val newNote = Notes(
                 title = title,
-                content = content,
-                folder = folder,
+                description = content,
+                id_folder = folderId,
+                date = System.currentTimeMillis(),
+                isList = isListMode,
+                id_user = userId
+            )
+            database.notesDao().insert(newNote)
+        } else {
+            val updatedNote = currentNote!!.copy(
+                title = title,
+                description = content,
+                id_folder = folderId,
+                date = System.currentTimeMillis(),
                 isList = isListMode
             )
-            NoteManager.addNote(this, newNote)
-        } else {
-            currentNote!!.title = title
-            currentNote!!.content = content
-            currentNote!!.folder = folder
-            currentNote!!.isList = isListMode
-            currentNote!!.lastOpened = System.currentTimeMillis()
-            NoteManager.updateNote(this, currentNote!!)
+            database.notesDao().update(updatedNote)
         }
     }
 }

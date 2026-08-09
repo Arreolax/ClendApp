@@ -73,14 +73,23 @@ class InicioFragment : Fragment() {
             startActivity(intent)
         }
         
-        // Cargar conteo de notas
-        NoteManager.loadNotes(requireContext())
-        val count = NoteManager.getNotes().size
-        if (count > 1) {
-            binding.tvNotesCount.text = count.toString()
-            binding.tvNotesCount.visibility = View.VISIBLE
-        } else {
-            binding.tvNotesCount.visibility = View.GONE
+        // Cargar conteo de notas desde Room
+        val sharedPref = requireContext().getSharedPreferences("clend_app_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+        if (userId != -1) {
+            val database = AppDatabase.getDatabase(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
+                database.notesDao().getAllNotes(userId).collect { notes ->
+                    if (_binding == null) return@collect
+                    val count = notes.size
+                    if (count > 0) {
+                        binding.tvNotesCount.text = count.toString()
+                        binding.tvNotesCount.visibility = View.VISIBLE
+                    } else {
+                        binding.tvNotesCount.visibility = View.GONE
+                    }
+                }
+            }
         }
     }
 
